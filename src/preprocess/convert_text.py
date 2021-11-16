@@ -1,11 +1,30 @@
 from collections import defaultdict
-from typing import Dict, List, Sequence, Set, Tuple
+from typing import Dict, List, Optional, Sequence, Set, Tuple
 
 import networkx as nx
 import numpy as np
+import sklearn
 
 
-def convert_text_to_one_hot_vector(texts: List[str]) -> Tuple[Dict[str, int], List[np.ndarray]]:
+def get_nodes_repr_for_texts(texts: List[str], node_dim: Optional[int] = 1000) -> np.ndarray:
+    """Get dense node representation for texts.
+
+    Args:
+        texts (List[str]): Texts to proess.
+        node_dim (int): Dimension of node.
+
+    Returns:
+        np.ndarray: Numpy array of node representation with shape of
+                    (nodes, node_dim)
+    """
+    _, bag_of_words = convert_text_to_one_hot_vector(texts)
+    result: np.ndarray = sklearn.decomposition.PCA(bag_of_words)
+    # Retrieve top-node_dim components
+    result = result[:, :node_dim]
+    return result
+
+
+def convert_text_to_one_hot_vector(texts: List[str]) -> Tuple[Dict[str, int], np.ndarray]:
     """Convert text to one hot vector with vocabulary.add()
 
     Args:
@@ -28,7 +47,7 @@ def convert_text_to_one_hot_vector(texts: List[str]) -> Tuple[Dict[str, int], Li
                 count += 1
             bag_of_words[vocab[word]] = 1
 
-    return vocab, bag_of_words
+    return vocab, np.array(bag_of_words)
 
 
 def build_edges_by_proteins(ids: Sequence[str], protein0s: Sequence[int], pritein1s: Sequence[int]) -> np.ndarray:
