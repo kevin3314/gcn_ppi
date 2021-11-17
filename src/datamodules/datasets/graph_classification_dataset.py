@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
@@ -9,36 +8,27 @@ from .convert_text import build_edges_by_proteins, get_nodes_repr_for_texts
 from .preprocess_on_graph import batch_graph, get_hop_distance, wl_node_coloring
 
 
-@dataclass
-class InputFeatures:
-    raw_feature: np.ndarray
-    role_ids: np.ndarray
-    position_ids: np.ndarray
-    hop_ids: np.ndarray
-    label: np.ndarray
-
-
 class GraphClassificationDataset:
     def __init__(
         self,
         csv_path: Union[str, Path],
         k: Optional[int] = 5,
     ):
-        self.features = self.load_data(csv_path, k)
+        self.load_data(csv_path, k)
 
     def __getitem__(self, index):
-        raw_features = self.features.raw_feature[index]  # (K, D)
-        role_ids = self.features.role_ids[index]  # (K, 1)
-        position_ids = self.features.position_ids[index]  # (K, 1)
-        hop_ids = self.features.hop_ids[index]  # (K, 1)
-        label = self.features.label[index]  # (1)
+        raw_features = self.raw_features[index]  # (K, D)
+        role_ids = self.role_ids[index]  # (K, 1)
+        position_ids = self.position_ids[index]  # (K, 1)
+        hop_ids = self.hop_ids[index]  # (K, 1)
+        label = self.labels[index]  # (1)
         return raw_features, role_ids, position_ids, hop_ids, label
 
-    @staticmethod
     def load_data(
+        self,
         csv_path: Union[str, Path],
         k: Optional[int] = 5,
-    ) -> InputFeatures:
+    ) -> None:
         """Load data from data_path.
 
         Args:
@@ -53,7 +43,7 @@ class GraphClassificationDataset:
         nodes: np.ndarray = get_nodes_repr_for_texts(df["text"].values)
         node_ids = np.arange(nodes.shape[0])
         edges = build_edges_by_proteins(df["id"].values, df["protein0"].values, df["protein1"].values, s_path)
-        label = df["GOLD"]
+        labels = df["GOLD"]
 
         wl_dict: Dict[int, int] = wl_node_coloring(nodes, edges)
         batch_dict: Dict[int, List[int]] = batch_graph(nodes, s_path, k=k)
@@ -83,15 +73,8 @@ class GraphClassificationDataset:
             position_ids_list.append(position_ids)
             hop_ids_list.append(hop_ids)
 
-        raw_feature_list = np.array(raw_feature_list)
-        role_ids_list = np.array(role_ids_list)
-        position_ids_list = np.array(position_ids_list)
-        hop_ids_list = np.array(hop_ids_list)
-
-        return InputFeatures(
-            raw_feature=raw_feature_list,
-            role_ids=role_ids_list,
-            position_ids=position_ids_list,
-            hop_ids=hop_ids_list,
-            label=label,
-        )
+        self.raw_features = np.array(raw_feature_list)
+        self.role_ids = np.array(role_ids_list)
+        self.position_ids = np.array(position_ids_list)
+        self.hop_ids = np.array(hop_ids_list)
+        self.labels = labels
