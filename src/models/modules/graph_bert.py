@@ -1,4 +1,5 @@
 import torch
+import torch.functional as F
 from transformers.models.bert.modeling_bert import BertPooler, BertPreTrainedModel
 
 from .graph_bert_layers import GraphBertEmbeddings, GraphBertEncoder
@@ -6,9 +7,9 @@ from .graph_bert_layers import GraphBertEmbeddings, GraphBertEncoder
 BertLayerNorm = torch.nn.LayerNorm
 
 
-class MethodGraphBert(BertPreTrainedModel):
+class GraphBertModel(BertPreTrainedModel):
     def __init__(self, config):
-        super(MethodGraphBert, self).__init__(config)
+        super(GraphBertModel, self).__init__(config)
         self.config = config
 
         self.embeddings = GraphBertEmbeddings(config)
@@ -42,3 +43,42 @@ class MethodGraphBert(BertPreTrainedModel):
             pooled_output,
         ) + encoder_outputs[1:]
         return outputs
+
+
+class GraphBertModelForNodeClassification(BertPreTrainedModel):
+    def __init__(self, config):
+        super(GraphBertModelForNodeClassification, self).__init__(config)
+        self.config = config
+        self.bert = GraphBertModel(config)
+        self.res_h = torch.nn.Linear(config.x_size, config.hidden_size)
+        self.res_y = torch.nn.Linear(config.x_size, config.y_size)
+        self.cls_y = torch.nn.Linear(config.hidden_size, config.y_size)
+        self.init_weights()
+
+    def forward(
+        self,
+        raw_features: torch.Tensor,
+        wl_role_ids: torch.Tensor,
+        init_pos_ids: torch.Tensor,
+        hop_dis_ids: torch.Tensor,
+    ):
+        residual_h, residual_y = None, None
+        if self.residual_term == "raw":
+            residual_h = self.res_h(raw_features)
+            residual_y = self.res_y(raw_features)
+        if residual_h is None:
+            outputs = self.bert(raw_features, wl_role_ids, init_pos_ids, hop_dis_ids, residual_h=None)
+        else:
+            outputs = self.bert(raw_features, wl_role_ids, init_pos_ids, hop_dis_ids, residual_h=residual_h)
+
+        sequence_output = 0
+        for i in range(self.config.k + 1):
+            sequence_output += outputs[0][:, i, :]
+        sequence_output /= float(self.config.k + 1)
+
+        labels = self.cls_y(sequence_output)
+
+        if residual_y is not None:
+            labels += residual_y
+
+        return F.log_softmax(labels, dim=1)
