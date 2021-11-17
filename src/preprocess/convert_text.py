@@ -110,7 +110,7 @@ def build_edges_by_proteins(
     D = nx.DiGraph(adj)
     edges = np.array([(u, v) for (u, v) in D.edges()])
 
-    if s_path is not None and os.path.exists(s_path):
+    if s_path is not None and not os.path.exists(s_path):
 
         def adj_normalize(mx):
             """Row-normalize sparse matrix"""
