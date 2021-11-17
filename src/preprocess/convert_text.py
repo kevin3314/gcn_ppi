@@ -1,17 +1,25 @@
+import os
+import pickle
 from collections import defaultdict
-from typing import Dict, List, Optional, Sequence, Set, Tuple
+from pathlib import Path
+from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 
 import networkx as nx
 import numpy as np
+import scipy as sp
 import sklearn
 
 
-def get_nodes_repr_for_texts(texts: List[str], node_dim: Optional[int] = 1000) -> np.ndarray:
+def get_nodes_repr_for_texts(
+    texts: List[str],
+    node_dim: Optional[int] = 1000,
+) -> np.ndarray:
     """Get dense node representation for texts.
 
     Args:
         texts (List[str]): Texts to proess.
         node_dim (int): Dimension of node.
+        data_dir (Union[str, Path]): Directory to save S.
 
     Returns:
         np.ndarray: Numpy array of node representation with shape of
@@ -24,11 +32,14 @@ def get_nodes_repr_for_texts(texts: List[str], node_dim: Optional[int] = 1000) -
     return result
 
 
-def convert_text_to_one_hot_vector(texts: List[str]) -> Tuple[Dict[str, int], np.ndarray]:
+def convert_text_to_one_hot_vector(
+    texts: List[str],
+) -> Tuple[Dict[str, int], np.ndarray]:
     """Convert text to one hot vector with vocabulary.add()
 
     Args:
         text (List[str]): Text to process.
+        data_dir (Union[str, Path]): Directory to save S.
 
     Returns:
         Tuple[str, List[np.ndarray]]: Tuple of vocabulary and processed ndarray.
@@ -50,7 +61,13 @@ def convert_text_to_one_hot_vector(texts: List[str]) -> Tuple[Dict[str, int], np
     return vocab, np.array(bag_of_words)
 
 
-def build_edges_by_proteins(ids: Sequence[str], protein0s: Sequence[int], pritein1s: Sequence[int]) -> np.ndarray:
+def build_edges_by_proteins(
+    ids: Sequence[str],
+    protein0s: Sequence[int],
+    pritein1s: Sequence[int],
+    s_path: Optional[Union[str, Path]] = None,
+    alpha: Optional[float] = None,
+) -> np.ndarray:
     """Build edges based on whether instance shares same protein.
 
     MEMO:
@@ -60,6 +77,8 @@ def build_edges_by_proteins(ids: Sequence[str], protein0s: Sequence[int], pritei
         ids (Sequence[int]): Ids of instances.
         protein0s (Sequence[int]): Protein ids of instance 0.
         pritein1s (Sequence[int]): Protein ids of instance 1.
+        s_path (Optional[Union[str, Path]]): Path to save S.
+        alpha: (Optional[float]): Coefficient to calculate S.
 
     Returns:
         np.ndarray: Numpy array of edges.
@@ -90,4 +109,24 @@ def build_edges_by_proteins(ids: Sequence[str], protein0s: Sequence[int], pritei
                 adj[j][j] = 1
     D = nx.DiGraph(adj)
     edges = np.array([(u, v) for (u, v) in D.edges()])
+
+    if s_path is not None and os.path.exists(s_path):
+
+        def adj_normalize(mx):
+            """Row-normalize sparse matrix"""
+            rowsum = np.array(mx.sum(1))
+            r_inv = np.power(rowsum, -0.5).flatten()
+            r_inv[np.isinf(r_inv)] = 0.0
+            r_mat_inv = sp.diags(r_inv)
+            mx = r_mat_inv.dot(mx).dot(r_mat_inv)
+            return mx
+
+        assert alpha is not None
+        # Calculate S
+        adj = sp.coo_matrix(adj)
+        adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+        eigen_adj = alpha * np.linalg.inv((sp.eye(adj.shape[0]) - (1 - alpha) * adj_normalize(adj)).toarray())
+        with open(s_path, "w") as f:
+            pickle.dump(eigen_adj, f)
+
     return edges
