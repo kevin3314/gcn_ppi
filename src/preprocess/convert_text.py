@@ -66,7 +66,7 @@ def build_edges_by_proteins(
     protein0s: Sequence[int],
     pritein1s: Sequence[int],
     s_path: Optional[Union[str, Path]] = None,
-    alpha: Optional[float] = None,
+    alpha: float = 0.15,
 ) -> np.ndarray:
     """Build edges based on whether instance shares same protein.
 

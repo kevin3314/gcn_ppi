@@ -96,7 +96,7 @@ def batch_graph(
 def get_hop_distance(
     ids: Sequence[int],
     edges: Sequence[Sequence[int]],
-    batch_dict_path: Union[str, Path],
+    batch_dict: Dict[int[List[Tuple[int, ndarray]]]],
 ) -> Dict[int[Dict[int, int]]]:
     """Get hop distance given S.
 
@@ -112,8 +112,6 @@ def get_hop_distance(
     G = nx.Graph()
     G.add_nodes_from(ids)
     G.add_edges_from(edges)
-    with open(batch_dict_path, "rb") as f:
-        batch_dict = pickle.load(f)
     hop_dict = defaultdict(dict)
     for node in batch_dict:
         for neighbor, _ in batch_dict[node]:
