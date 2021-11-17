@@ -8,7 +8,7 @@ from .convert_text import build_edges_by_proteins, get_nodes_repr_for_texts
 from .preprocess_on_graph import batch_graph, get_hop_distance, wl_node_coloring
 
 
-class GraphClassificationDataset:
+class GraphNodeClassificationDataset:
     def __init__(
         self,
         csv_path: Union[str, Path],
