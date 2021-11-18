@@ -62,7 +62,7 @@ class GraphBertModelForNodeClassification(BertPreTrainedModel):
         hop_dis_ids: torch.Tensor,
     ) -> torch.Tensor:
         residual_h, residual_y = None, None
-        if self.residual_term == "raw":
+        if self.config.residual_type == "raw":
             residual_h = self.res_h(raw_features)
             residual_y = self.res_y(raw_features)
         if residual_h is None:
@@ -76,4 +76,4 @@ class GraphBertModelForNodeClassification(BertPreTrainedModel):
         if residual_y is not None:
             logits += residual_y
 
-        return logits
+        return logits.squeeze(dim=1)

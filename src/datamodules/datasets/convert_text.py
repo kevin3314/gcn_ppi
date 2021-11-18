@@ -6,27 +6,47 @@ from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 
 import networkx as nx
 import numpy as np
-import scipy as sp
-import sklearn
+import scipy.sparse as sps
+import sklearn.decomposition
 
 
 def get_nodes_repr_for_texts(
     texts: List[str],
     node_dim: Optional[int] = 1000,
+    write_pca_path: Optional[Union[str, Path]] = None,
+    load_pca_path: Optional[Union[str, Path]] = None,
+    write_vocab_path: Optional[Union[str, Path]] = None,
+    load_vocab_path: Optional[Union[str, Path]] = None,
 ) -> np.ndarray:
     """Get dense node representation for texts.
 
     Args:
         texts (List[str]): Texts to proess.
         node_dim (int): Dimension of node.
-        data_dir (Union[str, Path]): Directory to save S.
+        write_pca_path: (Optional[Union[str, Path]]): Path to save pca.
+        load_pca_path: (Optional[Union[str, Path]]): Path to load pca.
+        write_vocab_path: (Optional[Union[str, Path]]): Path to save vocabulary.
+        load_vocab_path: (Optional[Union[str, Path]]): Path to load vocabulary.
 
     Returns:
         np.ndarray: Numpy array of node representation with shape of
                     (nodes, node_dim)
     """
-    _, bag_of_words = convert_text_to_one_hot_vector(texts)
-    result: np.ndarray = sklearn.decomposition.PCA(bag_of_words)
+    assert write_pca_path is not None or load_pca_path is not None
+    _, bag_of_words = convert_text_to_one_hot_vector(
+        texts,
+        write_vocab_path,
+        load_vocab_path,
+    )
+    if write_pca_path:
+        pca: sklearn.decomposition.PCA = sklearn.decomposition.PCA()
+        pca.fit(bag_of_words)
+        with open(write_pca_path, "wb") as f:
+            pickle.dump(pca, f)
+    else:
+        with open(load_pca_path, "rb") as f:
+            pca = pickle.load(f)
+    result: np.ndarray = pca.transform(bag_of_words)
     # Retrieve top-node_dim components
     result = result[:, :node_dim]
     return result
@@ -34,6 +54,8 @@ def get_nodes_repr_for_texts(
 
 def convert_text_to_one_hot_vector(
     texts: List[str],
+    write_vocab_path: Optional[Union[str, Path]] = None,
+    load_vocab_path: Optional[Union[str, Path]] = None,
 ) -> Tuple[Dict[str, int], np.ndarray]:
     """Convert text to one hot vector with vocabulary.add()
 
@@ -44,19 +66,23 @@ def convert_text_to_one_hot_vector(
     Returns:
         Tuple[str, List[np.ndarray]]: Tuple of vocabulary and processed ndarray.
     """
-    vocab: Dict[str, int] = {}
-    count: int = 0
-    # At first, determine the size of vocabulary.
-    vocab_size = len(set(word for text in texts for word in text.strip().split()))
+    assert write_vocab_path is not None or load_vocab_path is not None
+    if write_vocab_path is not None:
+        words = set(word for text in texts for word in text.strip().split())
+        vocab = {word: i for i, word in enumerate(words)}
+        with open(write_vocab_path, "wb") as f:
+            pickle.dump(vocab, f)
+    else:
+        with open(load_vocab_path, "rb") as f:
+            vocab = pickle.load(f)
 
+    vocab_size = len(vocab)
+    unk_idx = vocab_size
     # Bag of words for each sample
-    bag_of_words: List[np.ndarray] = [np.zeros(vocab_size) for _ in range(len(texts))]
+    bag_of_words: List[np.ndarray] = [np.zeros(vocab_size + 1) for _ in range(len(texts))]
     for text, bag_of_word in zip(texts, bag_of_words):
         for word in text.strip().split():
-            if word not in vocab:
-                vocab[word] = count
-                count += 1
-            bag_of_words[vocab[word]] = 1
+            bag_of_word[vocab.get(word, unk_idx)] = 1
 
     return vocab, np.array(bag_of_words)
 
@@ -95,10 +121,10 @@ def build_edges_by_proteins(
         contain_protein_counts[-1][protein0] -= 1
         contain_protein_counts[-1][protein1] -= 1
     contain_protein_sets: List[Set[str]] = [
-        set(key for key, value in contain_protein_count if value > 0)
+        set(key for key, value in contain_protein_count.items() if value > 0)
         for contain_protein_count in contain_protein_counts
     ]
-    adj = np.zeros_like((len(ids), len(ids)))
+    adj = np.zeros((len(ids), len(ids)))
 
     # Build edges based on contain_protein_sets
     for i, contain_protein_set0 in enumerate(contain_protein_sets):
@@ -117,16 +143,16 @@ def build_edges_by_proteins(
             rowsum = np.array(mx.sum(1))
             r_inv = np.power(rowsum, -0.5).flatten()
             r_inv[np.isinf(r_inv)] = 0.0
-            r_mat_inv = sp.diags(r_inv)
+            r_mat_inv = sps.diags(r_inv)
             mx = r_mat_inv.dot(mx).dot(r_mat_inv)
             return mx
 
         assert alpha is not None
         # Calculate S
-        adj = sp.coo_matrix(adj)
+        adj = sps.coo_matrix(adj)
         adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
-        eigen_adj = alpha * np.linalg.inv((sp.eye(adj.shape[0]) - (1 - alpha) * adj_normalize(adj)).toarray())
-        with open(s_path, "w") as f:
+        eigen_adj = alpha * np.linalg.inv((sps.eye(adj.shape[0]) - (1 - alpha) * adj_normalize(adj)).toarray())
+        with open(s_path, "wb") as f:
             pickle.dump(eigen_adj, f)
 
     return edges

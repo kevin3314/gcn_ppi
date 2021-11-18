@@ -1,9 +1,12 @@
 from pathlib import Path
 from typing import Optional, Union
 
-from datasets.graph_node_classification_dataset import GraphNodeClassificationDataset
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
+
+from src.datamodules.datasets.graph_node_classification_dataset import (
+    GraphNodeClassificationDataset,
+)
 
 
 class GraphNodeClassificationDataModule(LightningDataModule):
@@ -32,19 +35,19 @@ class GraphNodeClassificationDataModule(LightningDataModule):
         self.num_workers = num_workers
         self.pin_memory = pin_memory
 
-        self.data_train: Optional[Dataset] = None
-        self.data_val: Optional[Dataset] = None
-        self.data_test: Optional[Dataset] = None
+        self.train_ds: Optional[Dataset] = None
+        self.valid_ds: Optional[Dataset] = None
+        self.test_ds: Optional[Dataset] = None
 
     def setup(self, stage: Optional[str] = None):
         """Load data"""
-        self.train_ds = GraphNodeClassificationDataset(self.data_dir / "train.csv", self.k)
-        self.valid_ds = GraphNodeClassificationDataset(self.data_dir / "valid.csv", self.k)
-        self.test_ds = GraphNodeClassificationDataset(self.data_dir / "test.csv", self.k)
+        self.train_ds = GraphNodeClassificationDataset(self.data_dir / "train.csv", "train", self.k)
+        self.valid_ds = GraphNodeClassificationDataset(self.data_dir / "valid.csv", "valid", self.k)
+        self.test_ds = GraphNodeClassificationDataset(self.data_dir / "test.csv", "test", self.k)
 
     def train_dataloader(self):
         return DataLoader(
-            dataset=self.data_train,
+            dataset=self.train_ds,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
@@ -53,7 +56,7 @@ class GraphNodeClassificationDataModule(LightningDataModule):
 
     def val_dataloader(self):
         return DataLoader(
-            dataset=self.data_val,
+            dataset=self.valid_ds,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
@@ -62,7 +65,7 @@ class GraphNodeClassificationDataModule(LightningDataModule):
 
     def test_dataloader(self):
         return DataLoader(
-            dataset=self.data_test,
+            dataset=self.test_ds,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,

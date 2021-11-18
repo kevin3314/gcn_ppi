@@ -10,8 +10,8 @@ class GraphBertConfig(PretrainedConfig):
     def __init__(
         self,
         residual_type="none",
-        x_size=3000,
-        y_size=7,
+        x_size=1000,
+        y_size=1,
         k=5,
         max_wl_role_index=100,
         max_hop_dis_index=100,
@@ -110,6 +110,7 @@ class GraphBertEmbeddings(nn.Module):
 
     def forward(self, raw_features=None, wl_role_ids=None, init_pos_ids=None, hop_dis_ids=None):
 
+        raw_features = raw_features.float()
         raw_feature_embeds = self.raw_feature_embeddings(raw_features)
         role_embeddings = self.wl_role_embeddings(wl_role_ids)
         position_embeddings = self.inti_pos_embeddings(init_pos_ids)

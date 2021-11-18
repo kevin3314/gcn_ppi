@@ -3,18 +3,23 @@ from typing import Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
+from torch.utils.data import Dataset
 
 from .convert_text import build_edges_by_proteins, get_nodes_repr_for_texts
 from .preprocess_on_graph import batch_graph, get_hop_distance, wl_node_coloring
 
 
-class GraphNodeClassificationDataset:
+class GraphNodeClassificationDataset(Dataset):
     def __init__(
         self,
         csv_path: Union[str, Path],
+        split: str,
         k: Optional[int] = 5,
     ):
-        self.load_data(csv_path, k)
+        self.load_data(csv_path, split, k)
+
+    def __len__(self):
+        return len(self.raw_features)
 
     def __getitem__(self, index):
         raw_features = self.raw_features[index]  # (K, D)
@@ -27,6 +32,7 @@ class GraphNodeClassificationDataset:
     def load_data(
         self,
         csv_path: Union[str, Path],
+        split: str,
         k: Optional[int] = 5,
     ) -> None:
         """Load data from data_path.
@@ -38,16 +44,26 @@ class GraphNodeClassificationDataset:
         Returns:
             InputFeatures: Dataclass representing all input features.
         """
+        csv_path = Path(csv_path)
         df = pd.read_csv(csv_path)
-        s_path = Path(csv_path).parent / f"s_{k}.pkl"
-        nodes: np.ndarray = get_nodes_repr_for_texts(df["text"].values)
-        node_ids = np.arange(nodes.shape[0])
-        edges = build_edges_by_proteins(df["id"].values, df["protein0"].values, df["protein1"].values, s_path)
-        labels = df["GOLD"]
+        s_path = csv_path.parent / f"s_{split}_{k}.pkl"
+        pca_path: Optional[Path] = csv_path.parent / "pca.pkl"
+        vocab_path: Optional[Path] = csv_path.parent / "vocab.pkl"
 
-        wl_dict: Dict[int, int] = wl_node_coloring(nodes, edges)
-        batch_dict: Dict[int, List[int]] = batch_graph(nodes, s_path, k=k)
-        hop_dict: Dict[int, Dict[int, int]] = get_hop_distance()
+        nodes: np.ndarray = get_nodes_repr_for_texts(
+            df["text"].values,
+            write_pca_path=pca_path if split == "train" else None,
+            load_pca_path=pca_path if split != "train" else None,
+            write_vocab_path=vocab_path if split == "train" else None,
+            load_vocab_path=vocab_path if split != "train" else None,
+        )
+        node_ids = np.arange(nodes.shape[0])
+        edges = build_edges_by_proteins(df["ID"].values, df["PROTEIN0"].values, df["PROTEIN1"].values, s_path)
+        labels = df["GOLD"].astype(int)
+
+        wl_dict: Dict[int, int] = wl_node_coloring(node_ids, edges)
+        batch_dict: Dict[int, List[int]] = batch_graph(node_ids, s_path, k=k)
+        hop_dict: Dict[int, Dict[int, int]] = get_hop_distance(node_ids, edges, batch_dict)
 
         # N: number of nodes, K: number of neighbors, D: dimension of feature
         raw_feature_list = []  # (N, K, D)
@@ -74,7 +90,7 @@ class GraphNodeClassificationDataset:
             hop_ids_list.append(hop_ids)
 
         self.raw_features = np.array(raw_feature_list)
-        self.role_ids = np.array(role_ids_list)
-        self.position_ids = np.array(position_ids_list)
-        self.hop_ids = np.array(hop_ids_list)
-        self.labels = labels
+        self.role_ids = np.array(role_ids_list).astype(np.int64)
+        self.position_ids = np.array(position_ids_list).astype(np.int64)
+        self.hop_ids = np.array(hop_ids_list).astype(np.int64)
+        self.labels = labels.astype(np.float32)

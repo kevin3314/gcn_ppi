@@ -68,7 +68,7 @@ def wl_node_coloring(
 
 def batch_graph(
     ids: Sequence[int], s_path: Union[str, Path], k: Optional[int] = 5
-) -> Dict[int[List[Tuple[int, ndarray]]]]:
+) -> Dict[int, List[Tuple[int, ndarray]]]:
     """Batch graph by top-k sampling based on S matrix.
 
     Args:
@@ -96,8 +96,8 @@ def batch_graph(
 def get_hop_distance(
     ids: Sequence[int],
     edges: Sequence[Sequence[int]],
-    batch_dict: Dict[int[List[Tuple[int, ndarray]]]],
-) -> Dict[int[Dict[int, int]]]:
+    batch_dict: Dict[int, List[Tuple[int, ndarray]]],
+) -> Dict[int, Dict[int, int]]:
     """Get hop distance given S.
 
     Args:

@@ -25,7 +25,7 @@ class GraphBertNodeClassificationModule(LightningModule):
         self.save_hyperparameters()
 
         self.model: GraphBertModelForNodeClassification = GraphBertModelForNodeClassification(config)
-        self.criterion = torch.nn.CrossEntropyLoss()
+        self.criterion = torch.nn.BCEWithLogitsLoss()
 
         # use separate metric instance for train, val and test step
         # to ensure a proper reduction over the epoch
@@ -45,15 +45,16 @@ class GraphBertNodeClassificationModule(LightningModule):
     def step(self, batch: Any):
         raw_features, wl_role_ids, init_pos_ids, hop_dis_ids, labels = batch
         logits = self.forward(raw_features, wl_role_ids, init_pos_ids, hop_dis_ids)
-        loss = self.criterion(logits, labels)
-        preds = torch.argmax(logits, dim=1)
+        loss = self.criterion(logits, labels.float())
+        preds = (logits > 0.0).long()
+        # preds = torch.argmax(logits, dim=1)
         return loss, preds, labels
 
     def training_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.step(batch)
 
         # log train metrics
-        acc = self.train_accuracy(preds, targets)
+        acc = self.train_accuracy(preds, targets.long())
         self.log("train/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
         self.log("train/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
 
@@ -70,7 +71,7 @@ class GraphBertNodeClassificationModule(LightningModule):
         loss, preds, targets = self.step(batch)
 
         # log val metrics
-        acc = self.val_accuracy(preds, targets)
+        acc = self.val_accuracy(preds, targets.long())
         self.log("val/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
         self.log("val/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
 
