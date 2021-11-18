@@ -1,0 +1,6 @@
+_target_: src.datamodules.graph_node_classification_datamodule.GraphNodeClassificationDataModule
+data_dir: ${data_dir}/hprd50 # data_dir is specified in config.yaml
+k: 5
+batch_size: 32
+num_workers: 0
+pin_memory: False
