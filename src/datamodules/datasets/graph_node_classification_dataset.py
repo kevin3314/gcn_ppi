@@ -23,10 +23,10 @@ class GraphNodeClassificationDataset(Dataset):
         return len(self.raw_features)
 
     def __getitem__(self, index):
-        raw_features = self.raw_features[index]  # (K, D)
-        role_ids = self.role_ids[index]  # (K, 1)
-        position_ids = self.position_ids[index]  # (K, 1)
-        hop_ids = self.hop_ids[index]  # (K, 1)
+        raw_features = self.raw_features[index]  # (K+1, D)
+        role_ids = self.role_ids[index]  # (K+1, 1)
+        position_ids = self.position_ids[index]  # (K+1, 1)
+        hop_ids = self.hop_ids[index]  # (K+1, 1)
         label = self.labels[index]  # (1)
         return raw_features, role_ids, position_ids, hop_ids, label
 
