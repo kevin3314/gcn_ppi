@@ -54,7 +54,7 @@ class GraphBertNodeClassificationModule(LightningModule):
         loss, preds, targets = self.step(batch)
 
         # log train metrics
-        acc = self.train_accuracy(preds, targets.long())
+        acc = self.train_accuracy(preds, targets)
         self.log("train/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
         self.log("train/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
 
@@ -71,7 +71,7 @@ class GraphBertNodeClassificationModule(LightningModule):
         loss, preds, targets = self.step(batch)
 
         # log val metrics
-        acc = self.val_accuracy(preds, targets.long())
+        acc = self.val_accuracy(preds, targets)
         self.log("val/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
         self.log("val/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
 
@@ -84,7 +84,7 @@ class GraphBertNodeClassificationModule(LightningModule):
         loss, preds, targets = self.step(batch)
 
         # log test metrics
-        acc = self.test_accuracy(preds, targets.long())
+        acc = self.test_accuracy(preds, targets)
         self.log("test/loss", loss, on_step=False, on_epoch=True)
         self.log("test/acc", acc, on_step=False, on_epoch=True)
 

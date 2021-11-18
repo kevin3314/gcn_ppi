@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
+import torch
 from torch.utils.data import Dataset
 
 from .convert_text import build_edges_by_proteins, get_nodes_repr_for_texts
@@ -89,8 +90,8 @@ class GraphNodeClassificationDataset(Dataset):
             position_ids_list.append(position_ids)
             hop_ids_list.append(hop_ids)
 
-        self.raw_features = np.array(raw_feature_list)
-        self.role_ids = np.array(role_ids_list).astype(np.int64)
-        self.position_ids = np.array(position_ids_list).astype(np.int64)
-        self.hop_ids = np.array(hop_ids_list).astype(np.int64)
-        self.labels = labels.astype(np.float32)
+        self.raw_features = torch.FloatTensor(raw_feature_list)
+        self.role_ids = torch.LongTensor(role_ids_list)
+        self.position_ids = torch.LongTensor(position_ids_list)
+        self.hop_ids = torch.LongTensor(hop_ids_list)
+        self.labels = torch.LongTensor(labels)
