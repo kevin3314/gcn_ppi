@@ -1,5 +1,4 @@
 import torch
-import torch.functional as F
 from transformers.models.bert.modeling_bert import BertPooler, BertPreTrainedModel
 
 from .graph_bert_layers import GraphBertEmbeddings, GraphBertEncoder
@@ -61,24 +60,20 @@ class GraphBertModelForNodeClassification(BertPreTrainedModel):
         wl_role_ids: torch.Tensor,
         init_pos_ids: torch.Tensor,
         hop_dis_ids: torch.Tensor,
-    ):
+    ) -> torch.Tensor:
         residual_h, residual_y = None, None
         if self.residual_term == "raw":
             residual_h = self.res_h(raw_features)
             residual_y = self.res_y(raw_features)
         if residual_h is None:
-            outputs = self.bert(raw_features, wl_role_ids, init_pos_ids, hop_dis_ids, residual_h=None)
+            outputs = self.bert(raw_features, wl_role_ids, init_pos_ids, hop_dis_ids, residual_h=None)[0]
         else:
-            outputs = self.bert(raw_features, wl_role_ids, init_pos_ids, hop_dis_ids, residual_h=residual_h)
-
-        sequence_output = 0
-        for i in range(self.config.k + 1):
-            sequence_output += outputs[0][:, i, :]
-        sequence_output /= float(self.config.k + 1)
-
-        labels = self.cls_y(sequence_output)
+            outputs = self.bert(raw_features, wl_role_ids, init_pos_ids, hop_dis_ids, residual_h=residual_h)[0]
+        # output: (b, seq, hid)
+        outputs = outputs.mean(dim=1)  # (b, hid)
+        logits = self.cls_y(outputs)  # (b, y)
 
         if residual_y is not None:
-            labels += residual_y
+            logits += residual_y
 
-        return F.log_softmax(labels, dim=1)
+        return logits
