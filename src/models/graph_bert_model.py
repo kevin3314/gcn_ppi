@@ -84,7 +84,7 @@ class GraphBertNodeClassificationModule(LightningModule):
         loss, preds, targets = self.step(batch)
 
         # log test metrics
-        acc = self.test_accuracy(preds, targets)
+        acc = self.test_accuracy(preds, targets.long())
         self.log("test/loss", loss, on_step=False, on_epoch=True)
         self.log("test/acc", acc, on_step=False, on_epoch=True)
 
