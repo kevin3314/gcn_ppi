@@ -1,0 +1,32 @@
+# @package _global_
+
+# path to original working directory
+# hydra hijacks working directory by changing it to the current log directory,
+# so it's useful to have this path as a special variable
+# learn more here: https://hydra.cc/docs/next/tutorials/basic/running_your_app/working_directory
+work_dir: ${hydra:runtime.cwd}
+
+# path to folder with data
+data_dir: ${work_dir}/data
+train_path: ${data_dir}/hprd50/train.csv
+valid_path: ${data_dir}/hprd50/valid.csv
+test_path: ${data_dir}/hprd50/test.csv
+pdb_root: ${data_dir}/pdb
+res_root: ${data_dir}/processed_pdb
+threshold: 8
+
+# pretty print config at the start of the run using Rich library
+print_config: True
+
+# disable python warnings if they annoy you
+ignore_warnings: True
+
+# check performance on test set, using the best model achieved during training
+# lightning chooses best model based on metric specified in checkpoint callback
+test_after_training: True
+
+# seed for random number generators in pytorch, numpy and python.random
+seed: 42
+
+# name of the run, accessed by loggers
+name: null
