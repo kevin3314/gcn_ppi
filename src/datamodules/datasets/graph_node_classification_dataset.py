@@ -28,16 +28,14 @@ class GraphNodeClassificationDataset(Dataset):
 
     def __getitem__(self, index):
         raw_features = self.raw_features[index]  # (K, D)
-        amino_acids0 = self.amino_acids_list0[index]  # (A1)
-        amino_acids1 = self.amino_acids_list1[index]  # (A2)
-        amino_adj0 = self.amino_acids_adj_list0[index]  # (A1, A1)
-        amino_adj1 = self.amino_acids_adj_list1[index]  # (A1, A1)
+        amino_acids_graph0 = self.amino_acids_graphs0[index]  # (A0)
+        amino_acids_graph1 = self.amino_acids_graphs1[index]  # (A1)
         role_ids = self.role_ids[index]  # (K, 1)
         position_ids = self.position_ids[index]  # (K, 1)
         hop_ids = self.hop_ids[index]  # (K, 1)
         label = self.labels[index]  # (1)
 
-        return raw_features, amino_acids0, amino_acids1, amino_adj0, amino_adj1, role_ids, position_ids, hop_ids, label
+        return raw_features, amino_acids_graph0, amino_acids_graph1, role_ids, position_ids, hop_ids, label
 
     @staticmethod
     def get_pdb_nodes(
