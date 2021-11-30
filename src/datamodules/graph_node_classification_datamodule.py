@@ -2,7 +2,8 @@ from pathlib import Path
 from typing import Optional, Union
 
 from pytorch_lightning import LightningDataModule
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
+from torch_geometric.loader import DataLoader as GDataLoader
 
 from src.datamodules.datasets.graph_node_classification_dataset import (
     GraphNodeClassificationDataset,
@@ -54,7 +55,7 @@ class GraphNodeClassificationDataModule(LightningDataModule):
         )
 
     def train_dataloader(self):
-        return DataLoader(
+        return GDataLoader(
             dataset=self.train_ds,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
@@ -63,7 +64,7 @@ class GraphNodeClassificationDataModule(LightningDataModule):
         )
 
     def val_dataloader(self):
-        return DataLoader(
+        return GDataLoader(
             dataset=self.valid_ds,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
@@ -72,7 +73,7 @@ class GraphNodeClassificationDataModule(LightningDataModule):
         )
 
     def test_dataloader(self):
-        return DataLoader(
+        return GDataLoader(
             dataset=self.test_ds,
             batch_size=self.batch_size,
             num_workers=self.num_workers,

@@ -3,8 +3,11 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
+import torch
 from scipy.sparse import coo_matrix, load_npz
 from torch.utils.data import Dataset
+from torch_geometric.data import Data
+from torch_geometric.utils import from_scipy_sparse_matrix
 
 from .convert_text import build_edges_by_proteins, get_nodes_repr_for_texts
 from .preprocess_on_graph import batch_graph, get_hop_distance, wl_node_coloring
@@ -108,6 +111,16 @@ class GraphNodeClassificationDataset(Dataset):
         amino_acids_adj_list0, amino_acids_adj_list1 = self.get_adj_matrix(
             df["PDB_ID0"].values, df["PDB_ID1"], pdb_processed_root
         )
+        amino_acids_edges0: List[torch.Tensor] = [from_scipy_sparse_matrix(adj)[0] for adj in amino_acids_adj_list0]
+        amino_acids_edges1: List[torch.Tensor] = [from_scipy_sparse_matrix(adj)[0] for adj in amino_acids_adj_list1]
+        amino_acids_graphs0: List[Data] = [
+            Data(x=amino_acids, edge_index=edge_index)
+            for amino_acids, edge_index in zip(amino_acids_list0, amino_acids_edges0)
+        ]
+        amino_acids_graphs1: List[Data] = [
+            Data(x=amino_acids, edge_index=edge_index)
+            for amino_acids, edge_index in zip(amino_acids_list1, amino_acids_edges1)
+        ]
 
         text_node_ids = np.arange(text_nodes.shape[0])
         text_edges = build_edges_by_proteins(df["ID"].values, df["PROTEIN0"].values, df["PROTEIN1"].values, s_path)
@@ -146,7 +159,5 @@ class GraphNodeClassificationDataset(Dataset):
         self.position_ids = np.array(position_ids_list).astype(np.int64)
         self.hop_ids = np.array(hop_ids_list).astype(np.int64)
         self.labels = labels.astype(np.float32)
-        self.amino_acids_list0 = amino_acids_list0
-        self.amino_acids_list1 = amino_acids_list1
-        self.amino_acids_adj_list0 = amino_acids_adj_list0
-        self.amino_acids_adj_list1 = amino_acids_adj_list1
+        self.amino_acids_graphs0 = amino_acids_graphs0
+        self.amino_acids_graphs1 = amino_acids_graphs1
