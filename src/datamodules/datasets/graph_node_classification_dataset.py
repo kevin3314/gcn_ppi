@@ -16,8 +16,9 @@ class GraphNodeClassificationDataset(Dataset):
         csv_path: Union[str, Path],
         split: str,
         k: Optional[int] = 5,
+        pdb_processed_root: Optional[Union[Path, str]] = "/home/umakoshi/Documents/ppi/gcn_ppi/data/pdb_processed",
     ):
-        self.load_data(csv_path, split, k)
+        self.load_data(csv_path, split, k, pdb_processed_root)
 
     def __len__(self):
         return len(self.raw_features)

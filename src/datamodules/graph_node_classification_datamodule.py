@@ -14,6 +14,7 @@ class GraphNodeClassificationDataModule(LightningDataModule):
         self,
         data_dir: Union[str, Path],
         k: int = 5,
+        pdb_processed_root: Optional[Union[Path, str]] = "/home/umakoshi/Documents/ppi/gcn_ppi/data/pdb_processed",
         batch_size: int = 32,
         num_workers: int = 0,
         pin_memory: bool = False,
@@ -30,6 +31,7 @@ class GraphNodeClassificationDataModule(LightningDataModule):
         super().__init__()
 
         self.data_dir = Path(data_dir)
+        self.pdb_processed_root = Path(pdb_processed_root)
         self.k = k
         self.batch_size = batch_size
         self.num_workers = num_workers
@@ -41,9 +43,15 @@ class GraphNodeClassificationDataModule(LightningDataModule):
 
     def setup(self, stage: Optional[str] = None):
         """Load data"""
-        self.train_ds = GraphNodeClassificationDataset(self.data_dir / "train.csv", "train", self.k)
-        self.valid_ds = GraphNodeClassificationDataset(self.data_dir / "valid.csv", "valid", self.k)
-        self.test_ds = GraphNodeClassificationDataset(self.data_dir / "test.csv", "test", self.k)
+        self.train_ds = GraphNodeClassificationDataset(
+            self.data_dir / "train.csv", "train", self.k, self.pdb_processed_root
+        )
+        self.valid_ds = GraphNodeClassificationDataset(
+            self.data_dir / "valid.csv", "valid", self.k, self.pdb_processed_root
+        )
+        self.test_ds = GraphNodeClassificationDataset(
+            self.data_dir / "test.csv", "test", self.k, self.pdb_processed_root
+        )
 
     def train_dataloader(self):
         return DataLoader(
