@@ -13,6 +13,22 @@ from .convert_text import build_edges_by_proteins, get_nodes_repr_for_texts
 from .preprocess_on_graph import batch_graph, get_hop_distance, wl_node_coloring
 
 
+class NeighborData(Data):
+    def __init__(self, edge_indices: List[torch.Tensor], xs: List[torch.Tensor]):
+        for i, x in enumerate(xs):
+            setattr(self, f"x_{i}", x)
+        for i, edge in enumerate(edge_indices):
+            setattr(self, f"edge_index_{i}", edge)
+
+    def __inc__(self, key, value, *args, **kwargs):
+        if "edge_index" in key:
+            index = key.lstrip("edge_index_")
+            x = getattr(self, f"x_{index}")
+            return x.size(0)
+        else:
+            return super().__inc__(key, value, *args, **kwargs)
+
+
 class GraphNodeClassificationDataset(Dataset):
     def __init__(
         self,
@@ -28,8 +44,8 @@ class GraphNodeClassificationDataset(Dataset):
 
     def __getitem__(self, index):
         raw_features = self.raw_features[index]  # (K, D)
-        amino_acids_graph0 = self.amino_acids_graphs0[index]  # (A0)
-        amino_acids_graph1 = self.amino_acids_graphs1[index]  # (A1)
+        amino_acids_graph_data0 = self.amino_acids_graph_data0[index]  # (~K)
+        amino_acids_graph_data1 = self.amino_acids_graph_data1[index]  # (~K)
         amino_acids_number0 = self.amino_acids_number_list0[index]
         amino_acids_number1 = self.amino_acids_number_list1[index]
         role_ids = self.role_ids[index]  # (K, 1)
@@ -39,8 +55,8 @@ class GraphNodeClassificationDataset(Dataset):
 
         return (
             raw_features,
-            amino_acids_graph0,
-            amino_acids_graph1,
+            amino_acids_graph_data0,
+            amino_acids_graph_data1,
             amino_acids_number0,
             amino_acids_number1,
             role_ids,
@@ -121,19 +137,8 @@ class GraphNodeClassificationDataset(Dataset):
         amino_acids_adj_list0, amino_acids_adj_list1 = self.get_adj_matrix(
             df["PDB_ID0"].values, df["PDB_ID1"], pdb_processed_root
         )
-        amino_acids_number_list0: np.ndarray = np.cumsum([len(aa) for aa in amino_acids_list0])
-        amino_acids_number_list1: np.ndarray = np.cumsum([len(aa) for aa in amino_acids_list1])
-
         amino_acids_edges0: List[torch.Tensor] = [from_scipy_sparse_matrix(adj)[0] for adj in amino_acids_adj_list0]
         amino_acids_edges1: List[torch.Tensor] = [from_scipy_sparse_matrix(adj)[0] for adj in amino_acids_adj_list1]
-        amino_acids_graphs0: List[Data] = [
-            Data(x=amino_acids, edge_index=edge_index)
-            for amino_acids, edge_index in zip(amino_acids_list0, amino_acids_edges0)
-        ]
-        amino_acids_graphs1: List[Data] = [
-            Data(x=amino_acids, edge_index=edge_index)
-            for amino_acids, edge_index in zip(amino_acids_list1, amino_acids_edges1)
-        ]
 
         text_node_ids = np.arange(text_nodes.shape[0])
         text_edges = build_edges_by_proteins(df["ID"].values, df["PROTEIN0"].values, df["PROTEIN1"].values, s_path)
@@ -145,6 +150,10 @@ class GraphNodeClassificationDataset(Dataset):
 
         # N: number of nodes, K: number of neighbors, D: dimension of feature
         raw_feature_list = []  # (N, K, D)
+        amino_acids_nodes_list0: List[List[torch.Tensor]] = []  # (N, K)
+        amino_acids_nodes_list1: List[List[torch.Tensor]] = []  # (N, K)
+        amino_acids_edges_list0: List[List[torch.Tensor]] = []  # (N, K, 2, num_edges)
+        amino_acids_edges_list1: List[List[torch.Tensor]] = []  # (N, K, 2, num_edges)
         role_ids_list = []  # (N, K)
         position_ids_list = []  # (N, K)
         hop_ids_list = []  # (N, K)
@@ -152,17 +161,29 @@ class GraphNodeClassificationDataset(Dataset):
             neighbors_list = batch_dict[node_idx]  # (K)
 
             raw_feature = [text_nodes[node_idx].tolist()]  # (K, D)
+            amino_acids_nodes0 = [amino_acids_list0[node_idx]]  # (K, A0)
+            amino_acids_nodes1 = [amino_acids_list1[node_idx]]  # (K, A1)
+            _amino_acids_edges0 = [amino_acids_edges0[node_idx]]  # (K, 2, num_edges)
+            _amino_acids_edges1 = [amino_acids_edges1[node_idx]]  # (K, 2, num_edges)
             role_ids = [wl_dict[node_idx]]  # (K)
             position_ids = range(len(neighbors_list) + 1)  # (K)
             hop_ids = [0]  # (K)
             for neighbor_idx, _ in neighbors_list:
                 raw_feature.append(text_nodes[neighbor_idx].tolist())
+                amino_acids_nodes0.append(torch.from_numpy(amino_acids_list0[neighbor_idx]))
+                amino_acids_nodes1.append(torch.from_numpy(amino_acids_list1[neighbor_idx]))
+                _amino_acids_edges0.append(amino_acids_edges0[neighbor_idx])
+                _amino_acids_edges1.append(amino_acids_edges1[neighbor_idx])
                 role_ids.append(wl_dict[neighbor_idx])
                 if neighbor_idx in hop_dict[node_idx]:
                     hop_ids.append(hop_dict[node_idx][neighbor_idx])
                 else:
                     hop_ids.append(99)
             raw_feature_list.append(raw_feature)
+            amino_acids_nodes_list0.append(amino_acids_nodes0)
+            amino_acids_nodes_list1.append(amino_acids_nodes1)
+            amino_acids_edges_list0.append(_amino_acids_edges0)
+            amino_acids_edges_list1.append(_amino_acids_edges1)
             role_ids_list.append(role_ids)
             position_ids_list.append(position_ids)
             hop_ids_list.append(hop_ids)
@@ -172,7 +193,12 @@ class GraphNodeClassificationDataset(Dataset):
         self.position_ids = np.array(position_ids_list).astype(np.int64)
         self.hop_ids = np.array(hop_ids_list).astype(np.int64)
         self.labels = labels.astype(np.float32)
-        self.amino_acids_graphs0 = amino_acids_graphs0
-        self.amino_acids_graphs1 = amino_acids_graphs1
-        self.amino_acids_number_list0 = amino_acids_number_list0
-        self.amino_acids_number_list1 = amino_acids_number_list1
+
+        self.amino_acids_graph_data0: List[NeighborData] = [
+            NeighborData(_amino_acids_edges0, _amino_acids_nodes0)
+            for (_amino_acids_nodes0, _amino_acids_edges0) in zip(amino_acids_nodes_list0, amino_acids_edges_list0)
+        ]
+        self.amino_acids_graph_data1: List[NeighborData] = [
+            NeighborData(_amino_acids_edges1, _amino_acids_nodes1)
+            for (_amino_acids_nodes1, _amino_acids_edges1) in zip(amino_acids_nodes_list1, amino_acids_edges_list1)
+        ]
