@@ -30,12 +30,24 @@ class GraphNodeClassificationDataset(Dataset):
         raw_features = self.raw_features[index]  # (K, D)
         amino_acids_graph0 = self.amino_acids_graphs0[index]  # (A0)
         amino_acids_graph1 = self.amino_acids_graphs1[index]  # (A1)
+        amino_acids_number0 = self.amino_acids_number_list0[index]
+        amino_acids_number1 = self.amino_acids_number_list1[index]
         role_ids = self.role_ids[index]  # (K, 1)
         position_ids = self.position_ids[index]  # (K, 1)
         hop_ids = self.hop_ids[index]  # (K, 1)
         label = self.labels[index]  # (1)
 
-        return raw_features, amino_acids_graph0, amino_acids_graph1, role_ids, position_ids, hop_ids, label
+        return (
+            raw_features,
+            amino_acids_graph0,
+            amino_acids_graph1,
+            amino_acids_number0,
+            amino_acids_number1,
+            role_ids,
+            position_ids,
+            hop_ids,
+            label,
+        )
 
     @staticmethod
     def get_pdb_nodes(
@@ -109,6 +121,9 @@ class GraphNodeClassificationDataset(Dataset):
         amino_acids_adj_list0, amino_acids_adj_list1 = self.get_adj_matrix(
             df["PDB_ID0"].values, df["PDB_ID1"], pdb_processed_root
         )
+        amino_acids_number_list0: np.ndarray = np.cumsum([len(aa) for aa in amino_acids_list0])
+        amino_acids_number_list1: np.ndarray = np.cumsum([len(aa) for aa in amino_acids_list1])
+
         amino_acids_edges0: List[torch.Tensor] = [from_scipy_sparse_matrix(adj)[0] for adj in amino_acids_adj_list0]
         amino_acids_edges1: List[torch.Tensor] = [from_scipy_sparse_matrix(adj)[0] for adj in amino_acids_adj_list1]
         amino_acids_graphs0: List[Data] = [
@@ -159,3 +174,5 @@ class GraphNodeClassificationDataset(Dataset):
         self.labels = labels.astype(np.float32)
         self.amino_acids_graphs0 = amino_acids_graphs0
         self.amino_acids_graphs1 = amino_acids_graphs1
+        self.amino_acids_number_list0 = amino_acids_number_list0
+        self.amino_acids_number_list1 = amino_acids_number_list1
