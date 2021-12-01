@@ -1,5 +1,4 @@
 import torch
-import torch_geometric.data
 from transformers.models.bert.modeling_bert import BertPooler, BertPreTrainedModel
 
 from .gnn_for_protein import GNNForProtein
@@ -59,23 +58,19 @@ class GraphBertModelForNodeClassification(BertPreTrainedModel):
 
     def forward(
         self,
-        raw_features: torch.Tensor,
-        amino_acids_graph0: torch_geometric.data.Data,
-        amino_acids_graph1: torch_geometric.data.Data,
-        amino_acids_number0: torch.Tensor,
-        amino_acids_number1: torch.Tensor,
+        features: torch.Tensor,
         wl_role_ids: torch.Tensor,
         init_pos_ids: torch.Tensor,
         hop_dis_ids: torch.Tensor,
     ) -> torch.Tensor:
         residual_h, residual_y = None, None
         if self.config.residual_type == "raw":
-            residual_h = self.res_h(raw_features)
-            residual_y = self.res_y(raw_features)
+            residual_h = self.res_h(features)
+            residual_y = self.res_y(features)
         if residual_h is None:
-            outputs = self.bert(raw_features, wl_role_ids, init_pos_ids, hop_dis_ids, residual_h=None)[0]
+            outputs = self.bert(features, wl_role_ids, init_pos_ids, hop_dis_ids, residual_h=None)[0]
         else:
-            outputs = self.bert(raw_features, wl_role_ids, init_pos_ids, hop_dis_ids, residual_h=residual_h)[0]
+            outputs = self.bert(features, wl_role_ids, init_pos_ids, hop_dis_ids, residual_h=residual_h)[0]
         # output: (b, seq, hid)
         outputs = outputs.mean(dim=1)  # (b, hid)
         logits = self.cls_y(outputs)  # (b, y)
