@@ -19,7 +19,7 @@ class GraphNodeClassificationDataModule(LightningDataModule):
         batch_size: int = 32,
         num_workers: int = 0,
         pin_memory: bool = False,
-        **kwargs
+        **kwargs,
     ):
         """
         Args:
@@ -60,6 +60,7 @@ class GraphNodeClassificationDataModule(LightningDataModule):
             batch_size=self.batch_size,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
+            follow_batch=[f"x_{i}" for i in range(self.k)],
             shuffle=True,
         )
 
@@ -69,6 +70,7 @@ class GraphNodeClassificationDataModule(LightningDataModule):
             batch_size=self.batch_size,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
+            follow_batch=[f"x_{i}" for i in range(self.k)],
             shuffle=False,
         )
 
@@ -78,5 +80,6 @@ class GraphNodeClassificationDataModule(LightningDataModule):
             batch_size=self.batch_size,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
+            follow_batch=[f"x_{i}" for i in range(self.k)],
             shuffle=False,
         )
