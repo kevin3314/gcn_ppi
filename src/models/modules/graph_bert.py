@@ -1,6 +1,8 @@
 import torch
+import torch_geometric.data
 from transformers.models.bert.modeling_bert import BertPooler, BertPreTrainedModel
 
+from .gnn_for_protein import GNNForProtein
 from .graph_bert_layers import GraphBertEmbeddings, GraphBertEncoder
 
 BertLayerNorm = torch.nn.LayerNorm
@@ -49,6 +51,7 @@ class GraphBertModelForNodeClassification(BertPreTrainedModel):
         super(GraphBertModelForNodeClassification, self).__init__(config)
         self.config = config
         self.bert = GraphBertModel(config)
+        self.gnn_for_protein = GNNForProtein(config)
         self.res_h = torch.nn.Linear(config.x_size, config.hidden_size)
         self.res_y = torch.nn.Linear(config.x_size, config.y_size)
         self.cls_y = torch.nn.Linear(config.hidden_size, config.y_size)
@@ -57,6 +60,10 @@ class GraphBertModelForNodeClassification(BertPreTrainedModel):
     def forward(
         self,
         raw_features: torch.Tensor,
+        amino_acids_graph0: torch_geometric.data.Data,
+        amino_acids_graph1: torch_geometric.data.Data,
+        amino_acids_number0: torch.Tensor,
+        amino_acids_number1: torch.Tensor,
         wl_role_ids: torch.Tensor,
         init_pos_ids: torch.Tensor,
         hop_dis_ids: torch.Tensor,
