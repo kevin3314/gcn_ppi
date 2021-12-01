@@ -5,11 +5,11 @@ from pytorch_lightning import LightningModule
 from torchmetrics.classification.accuracy import Accuracy
 from transformers import AdamW, get_linear_schedule_with_warmup
 
-from src.models.modules.graph_bert import GraphBertModelForNodeClassification
 from src.models.modules.graph_bert_layers import GraphBertConfig
+from src.models.modules.mm_model import MultiModalModel
 
 
-class GraphBertNodeClassificationModule(LightningModule):
+class MultiModalModule(LightningModule):
     def __init__(
         self,
         config: GraphBertConfig,
@@ -24,7 +24,7 @@ class GraphBertNodeClassificationModule(LightningModule):
         super().__init__()
         self.save_hyperparameters()
 
-        self.model: GraphBertModelForNodeClassification = GraphBertModelForNodeClassification(config)
+        self.model: MultiModalModel = MultiModalModel(config)
         self.criterion = torch.nn.BCEWithLogitsLoss()
 
         # use separate metric instance for train, val and test step
@@ -35,16 +35,22 @@ class GraphBertNodeClassificationModule(LightningModule):
 
     def forward(
         self,
-        raw_features: torch.Tensor,
-        wl_role_ids: torch.Tensor,
-        init_pos_ids: torch.Tensor,
-        hop_dis_ids: torch.Tensor,
+        raw_features: torch.Tensor,  # (batch_size, k, num_features)
+        amino_acids_graph_data0,
+        amino_acids_graph_data1,
+        role_ids: torch.Tensor,  # (batch_size, k)
+        position_ids: torch.Tensor,  # (batch_size, k)
+        hop_ids: torch.Tensor,  # (batch_size, k)
     ):
-        return self.model(raw_features, wl_role_ids, init_pos_ids, hop_dis_ids)
+        return self.model(
+            raw_features, amino_acids_graph_data0, amino_acids_graph_data1, role_ids, position_ids, hop_ids
+        )
 
     def step(self, batch: Any):
-        raw_features, wl_role_ids, init_pos_ids, hop_dis_ids, labels = batch
-        logits = self.forward(raw_features, wl_role_ids, init_pos_ids, hop_dis_ids)
+        raw_features, amino_acids_graph_data0, amino_acids_graph_data1, role_ids, position_ids, hop_ids, labels = batch
+        logits = self.forward(
+            raw_features, amino_acids_graph_data0, amino_acids_graph_data1, role_ids, position_ids, hop_ids
+        )
         loss = self.criterion(logits, labels.float())
         preds = (logits > 0.0).long()
         # preds = torch.argmax(logits, dim=1)
