@@ -1,14 +1,14 @@
 import torch.nn
 
 
-class MultiModelModel(torch.nn.Module):
+class MultiModalModel(torch.nn.Module):
     """Multimodal Model for fusion of text modality and protein modality.
     At first, representation for each protein is calculated using GNN.
     Then two representation is added together and fed to GraphBert to obtain results.
     """
 
     def __init__(self, k):
-        super(MultiModelModel, self).__init__()
+        super(MultiModalModel, self).__init__()
 
     def forward(
         self,
