@@ -46,8 +46,6 @@ class GraphNodeClassificationDataset(Dataset):
         raw_features = self.raw_features[index]  # (K, D)
         amino_acids_graph_data0 = self.amino_acids_graph_data0[index]  # (~K)
         amino_acids_graph_data1 = self.amino_acids_graph_data1[index]  # (~K)
-        amino_acids_number0 = self.amino_acids_number_list0[index]
-        amino_acids_number1 = self.amino_acids_number_list1[index]
         role_ids = self.role_ids[index]  # (K, 1)
         position_ids = self.position_ids[index]  # (K, 1)
         hop_ids = self.hop_ids[index]  # (K, 1)
@@ -57,8 +55,6 @@ class GraphNodeClassificationDataset(Dataset):
             raw_features,
             amino_acids_graph_data0,
             amino_acids_graph_data1,
-            amino_acids_number0,
-            amino_acids_number1,
             role_ids,
             position_ids,
             hop_ids,
