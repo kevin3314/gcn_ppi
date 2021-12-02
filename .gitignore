@@ -148,3 +148,4 @@ logs/
 wandb/
 .env
 .autoenv
+outputs/

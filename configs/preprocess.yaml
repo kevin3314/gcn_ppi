@@ -1,23 +1,5 @@
 # @package _global_
 
-# specify here default training configuration
-defaults:
-  - _self_
-  - trainer: default.yaml
-  - model: multi_modal_model.yaml
-  - datamodule: hprd50_datamodule.yaml
-  - callbacks: default.yaml
-  - logger: tensorboard # set logger here or use command line (e.g. `python run.py logger=wandb`)
-
-  - mode: default.yaml
-
-  - experiment: null
-  - hparams_search: null
-
-  # enable color logging
-  - override hydra/hydra_logging: colorlog
-  - override hydra/job_logging: colorlog
-
 # path to original working directory
 # hydra hijacks working directory by changing it to the current log directory,
 # so it's useful to have this path as a special variable
@@ -26,6 +8,12 @@ work_dir: ${hydra:runtime.cwd}
 
 # path to folder with data
 data_dir: ${work_dir}/data
+train_path: ${data_dir}/hprd50/train.csv
+valid_path: ${data_dir}/hprd50/valid.csv
+test_path: ${data_dir}/hprd50/test.csv
+pdb_root: ${data_dir}/pdb
+res_root: ${data_dir}/processed_pdb
+threshold: 8
 
 # pretty print config at the start of the run using Rich library
 print_config: True
