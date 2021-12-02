@@ -2,7 +2,7 @@ from typing import Any, List
 
 import torch
 from pytorch_lightning import LightningModule
-from torchmetrics.classification.accuracy import Accuracy
+from torchmetrics import F1, Precision, Recall
 from transformers import AdamW, get_linear_schedule_with_warmup
 
 from src.models.modules.graph_bert_layers import GraphBertConfig
@@ -32,9 +32,15 @@ class MultiModalModule(LightningModule):
 
         # use separate metric instance for train, val and test step
         # to ensure a proper reduction over the epoch
-        self.train_accuracy = Accuracy()
-        self.val_accuracy = Accuracy()
-        self.test_accuracy = Accuracy()
+        self.train_prec = Precision()
+        self.train_rec = Recall()
+        self.train_f1 = F1()
+        self.val_prec = Precision()
+        self.val_rec = Recall()
+        self.val_f1 = F1()
+        self.test_prec = Precision()
+        self.test_rec = Recall()
+        self.test_f1 = F1()
 
     def forward(
         self,
@@ -63,9 +69,13 @@ class MultiModalModule(LightningModule):
         loss, preds, targets = self.step(batch)
 
         # log train metrics
-        acc = self.train_accuracy(preds, targets.long())
+        prec = self.train_prec(preds, targets.long())
+        rec = self.train_rec(preds, targets.long())
+        f1 = self.train_f1(preds, targets.long())
         self.log("train/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
-        self.log("train/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("train/prec", prec, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("train/rec", rec, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("train/f1", f1, on_step=False, on_epoch=True, prog_bar=True)
 
         # we can return here dict with any tensors
         # and then read it in some callback or in training_epoch_end() below
@@ -74,33 +84,49 @@ class MultiModalModule(LightningModule):
 
     def training_epoch_end(self, outputs: List[Any]):
         # `outputs` is a list of dicts returned from `training_step()`
-        pass
+        self.log("train/prec_epoch", self.train_prec.compute())
+        self.log("train/rec_epoch", self.train_rec.compute())
+        self.log("train/f1_epoch", self.train_f1.compute())
 
     def validation_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.step(batch)
 
         # log val metrics
-        acc = self.val_accuracy(preds, targets.long())
+        prec = self.train_prec(preds, targets.long())
+        rec = self.train_rec(preds, targets.long())
+        f1 = self.train_f1(preds, targets.long())
+        # log val metrics
         self.log("val/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
-        self.log("val/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("val/prec", prec, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("val/rec", rec, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("val/f1", f1, on_step=False, on_epoch=True, prog_bar=True)
 
         return {"loss": loss, "preds": preds, "targets": targets}
 
     def validation_epoch_end(self, outputs: List[Any]):
-        pass
+        self.log("val/prec_epoch", self.val_prec.compute())
+        self.log("val/rec_epoch", self.val_rec.compute())
+        self.log("val/f1_epoch", self.val_f1.compute())
 
     def test_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.step(batch)
 
         # log test metrics
-        acc = self.test_accuracy(preds, targets.long())
+        prec = self.train_prec(preds, targets.long())
+        rec = self.train_rec(preds, targets.long())
+        f1 = self.train_f1(preds, targets.long())
+
         self.log("test/loss", loss, on_step=False, on_epoch=True)
-        self.log("test/acc", acc, on_step=False, on_epoch=True)
+        self.log("test/prec", prec, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("test/rec", rec, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("test/f1", f1, on_step=False, on_epoch=True, prog_bar=True)
 
         return {"loss": loss, "preds": preds, "targets": targets}
 
     def test_epoch_end(self, outputs: List[Any]):
-        pass
+        self.log("test/prec_epoch", self.test_prec.compute())
+        self.log("test/rec_epoch", self.test_rec.compute())
+        self.log("test/f1_epoch", self.test_f1.compute())
 
     def configure_optimizers(self):
         trainable_named_params = filter(lambda x: x[1].requires_grad, self.model.named_parameters())
