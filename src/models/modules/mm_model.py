@@ -1,5 +1,9 @@
 import torch.nn
 
+from .gnn_for_protein import GNNForProtein
+from .graph_bert import GraphBertModel
+from .graph_bert_layers import GraphBertConfig
+
 
 class MultiModalModel(torch.nn.Module):
     """Multimodal Model for fusion of text modality and protein modality.
@@ -7,8 +11,10 @@ class MultiModalModel(torch.nn.Module):
     Then two representation is added together and fed to GraphBert to obtain results.
     """
 
-    def __init__(self, k):
+    def __init__(self, config: GraphBertConfig, amino_vocab_size: int, embedding_dim: int, num_gnn_layers: int):
         super(MultiModalModel, self).__init__()
+        self.graph_bert = GraphBertModel(config)
+        self.gnn = GNNForProtein(amino_vocab_size, embedding_dim, num_gnn_layers)
 
     def forward(
         self,

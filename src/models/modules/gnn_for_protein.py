@@ -15,7 +15,7 @@ class GNNForProtein(torch.nn.Module):
     def forward(self, graph: torch_geometric.data.Data, amino_acids_numbers: torch.Tensor):  # (batch_size)
         nodes = self.embedding(graph.x)
         for gnn_layer in self.gnn_layers:
-            nodes = gnn_layer(nodes, graph.edge_index)
+            nodes = gnn_layer(nodes, graph.edge_index).relu()
         # (batch_size, embedding_dim)
         nodes: torch.Tensor = torch.stack(
             [nodes[start:end].mean(dim=0) for start, end in zip(chain([0], amino_acids_numbers), amino_acids_numbers)]

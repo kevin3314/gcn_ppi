@@ -13,6 +13,9 @@ class MultiModalModule(LightningModule):
     def __init__(
         self,
         config: GraphBertConfig,
+        amino_vocab_size: int,
+        embedding_dim: int,
+        num_gnn_layers: int,
         train_size: int = 358020,
         batch_size: int = 32,
         max_epochs: int = 50,
@@ -24,7 +27,7 @@ class MultiModalModule(LightningModule):
         super().__init__()
         self.save_hyperparameters()
 
-        self.model: MultiModalModel = MultiModalModel(config)
+        self.model: MultiModalModel = MultiModalModel(config, amino_vocab_size, embedding_dim, num_gnn_layers)
         self.criterion = torch.nn.BCEWithLogitsLoss()
 
         # use separate metric instance for train, val and test step
