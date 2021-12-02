@@ -1,7 +1,12 @@
-from itertools import chain
+import logging
 
 import torch.nn
 import torch_geometric.data
+import torch_geometric.nn
+from torch_geometric.nn import global_mean_pool
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class GNNForProtein(torch.nn.Module):
@@ -9,15 +14,13 @@ class GNNForProtein(torch.nn.Module):
         super(GNNForProtein, self).__init__()
         self.embedding = torch.nn.Embedding(num_embeddings=vocab_size + 1, embedding_dim=embedding_dim)
         self.gnn_layers = torch.nn.ModuleList(
-            [torch_geometric.nn.GraphConv(embedding_dim, embedding_dim) for _ in range(num_gnn_layers)]
+            [torch_geometric.nn.GCNConv(embedding_dim, embedding_dim) for _ in range(num_gnn_layers)]
         )
 
-    def forward(self, graph: torch_geometric.data.Data, amino_acids_numbers: torch.Tensor):  # (batch_size)
-        nodes = self.embedding(graph.x)
+    def forward(self, nodes: torch.Tensor, edge_index: torch.Tensor, batch_index: torch.Tensor):  # (batch_size)
+        nodes: torch.Tensor = self.embedding(nodes.long())
         for gnn_layer in self.gnn_layers:
-            nodes = gnn_layer(nodes, graph.edge_index).relu()
+            nodes = gnn_layer(nodes, edge_index).relu()
         # (batch_size, embedding_dim)
-        nodes: torch.Tensor = torch.stack(
-            [nodes[start:end].mean(dim=0) for start, end in zip(chain([0], amino_acids_numbers), amino_acids_numbers)]
-        )
+        nodes: torch.Tensor = global_mean_pool(nodes, batch_index)
         return nodes

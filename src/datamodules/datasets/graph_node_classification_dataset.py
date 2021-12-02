@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -12,13 +13,19 @@ from torch_geometric.utils import from_scipy_sparse_matrix
 from .convert_text import build_edges_by_proteins, get_nodes_repr_for_texts
 from .preprocess_on_graph import batch_graph, get_hop_distance, wl_node_coloring
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 
 class NeighborData(Data):
-    def __init__(self, edge_indices: List[torch.Tensor], xs: List[torch.Tensor]):
-        for i, x in enumerate(xs):
-            setattr(self, f"x_{i}", x)
-        for i, edge in enumerate(edge_indices):
-            setattr(self, f"edge_index_{i}", edge)
+    def __init__(self, edge_indices: Optional[List[torch.Tensor]] = None, xs: Optional[List[torch.Tensor]] = None):
+        super().__init__()
+        if xs is not None:
+            for i, x in enumerate(xs):
+                setattr(self, f"x_{i}", x)
+        if edge_indices is not None:
+            for i, edge in enumerate(edge_indices):
+                setattr(self, f"edge_index_{i}", edge)
 
     def __inc__(self, key, value, *args, **kwargs):
         if "edge_index" in key:
@@ -64,13 +71,17 @@ class GraphNodeClassificationDataset(Dataset):
     @staticmethod
     def get_pdb_nodes(
         pdb_ids0: List[str], pdb_ids1: List[str], pdb_root: Path
-    ) -> Tuple[List[np.ndarray], List[np.ndarray]]:
+    ) -> Tuple[List[torch.Tensor], List[torch.Tensor]]:
         res0 = [
-            np.load(pdb_root / f"{pdb_id}_ids.npy") if (pdb_root / f"{pdb_id}_ids.npy").exists() else np.zeros(0)
+            torch.from_numpy(np.load(pdb_root / f"{pdb_id}_ids.npy"))
+            if (pdb_root / f"{pdb_id}_ids.npy").exists()
+            else torch.ones(1)
             for pdb_id in pdb_ids0
         ]
         res1 = [
-            np.load(pdb_root / f"{pdb_id}_ids.npy") if (pdb_root / f"{pdb_id}_ids.npy").exists() else np.zeros(0)
+            torch.from_numpy(np.load(pdb_root / f"{pdb_id}_ids.npy"))
+            if (pdb_root / f"{pdb_id}_ids.npy").exists()
+            else torch.ones(1)
             for pdb_id in pdb_ids1
         ]
         return res0, res1
@@ -80,11 +91,15 @@ class GraphNodeClassificationDataset(Dataset):
         pdb_ids0: List[str], pdb_ids1: List[str], pdb_root: Path
     ) -> Tuple[List[coo_matrix], List[coo_matrix]]:
         res0 = [
-            load_npz(pdb_root / f"{pdb_id}_adj.npz") if (pdb_root / f"{pdb_id}_adj.npz").exists() else np.zeros(0)
+            load_npz(pdb_root / f"{pdb_id}_adj.npz")
+            if (pdb_root / f"{pdb_id}_adj.npz").exists()
+            else coo_matrix((0, 0))
             for pdb_id in pdb_ids0
         ]
         res1 = [
-            load_npz(pdb_root / f"{pdb_id}_adj.npz") if (pdb_root / f"{pdb_id}_adj.npz").exists() else np.zeros(0)
+            load_npz(pdb_root / f"{pdb_id}_adj.npz")
+            if (pdb_root / f"{pdb_id}_adj.npz").exists()
+            else coo_matrix((0, 0))
             for pdb_id in pdb_ids1
         ]
         return res0, res1
@@ -166,8 +181,8 @@ class GraphNodeClassificationDataset(Dataset):
             hop_ids = [0]  # (K)
             for neighbor_idx, _ in neighbors_list:
                 raw_feature.append(text_nodes[neighbor_idx].tolist())
-                amino_acids_nodes0.append(torch.from_numpy(amino_acids_list0[neighbor_idx]))
-                amino_acids_nodes1.append(torch.from_numpy(amino_acids_list1[neighbor_idx]))
+                amino_acids_nodes0.append(amino_acids_list0[neighbor_idx])
+                amino_acids_nodes1.append(amino_acids_list1[neighbor_idx])
                 _amino_acids_edges0.append(amino_acids_edges0[neighbor_idx])
                 _amino_acids_edges1.append(amino_acids_edges1[neighbor_idx])
                 role_ids.append(wl_dict[neighbor_idx])
@@ -184,12 +199,16 @@ class GraphNodeClassificationDataset(Dataset):
             position_ids_list.append(position_ids)
             hop_ids_list.append(hop_ids)
 
-        self.raw_features = np.array(raw_feature_list)
-        self.role_ids = np.array(role_ids_list).astype(np.int64)
-        self.position_ids = np.array(position_ids_list).astype(np.int64)
-        self.hop_ids = np.array(hop_ids_list).astype(np.int64)
-        self.labels = labels.astype(np.float32)
+        self.raw_features = torch.from_numpy(np.array(raw_feature_list))
+        self.role_ids = torch.from_numpy(np.array(role_ids_list).astype(np.int64))
+        self.position_ids = torch.from_numpy(np.array(position_ids_list).astype(np.int64))
+        self.hop_ids = torch.from_numpy(np.array(hop_ids_list).astype(np.int64))
+        self.labels = torch.from_numpy(np.array(labels.astype(np.float32)))
 
+        assert all(x is not None for x in amino_acids_nodes_list0)
+        assert all(x is not None for x in amino_acids_nodes_list1)
+        assert all(x is not None for x in amino_acids_edges_list0)
+        assert all(x is not None for x in amino_acids_edges_list1)
         self.amino_acids_graph_data0: List[NeighborData] = [
             NeighborData(_amino_acids_edges0, _amino_acids_nodes0)
             for (_amino_acids_nodes0, _amino_acids_edges0) in zip(amino_acids_nodes_list0, amino_acids_edges_list0)
@@ -198,3 +217,4 @@ class GraphNodeClassificationDataset(Dataset):
             NeighborData(_amino_acids_edges1, _amino_acids_nodes1)
             for (_amino_acids_nodes1, _amino_acids_edges1) in zip(amino_acids_nodes_list1, amino_acids_edges_list1)
         ]
+        logger.info(f"Successfully load data: {split}")

@@ -60,7 +60,8 @@ class GraphNodeClassificationDataModule(LightningDataModule):
             batch_size=self.batch_size,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
-            follow_batch=[f"x_{i}" for i in range(self.k)],
+            # One instance includes k neighboor nodes and target node (= k+1 nodes).
+            follow_batch=[f"x_{i}" for i in range(self.k + 1)],
             shuffle=True,
         )
 
@@ -70,7 +71,8 @@ class GraphNodeClassificationDataModule(LightningDataModule):
             batch_size=self.batch_size,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
-            follow_batch=[f"x_{i}" for i in range(self.k)],
+            # One instance includes k neighboor nodes and target node (= k+1 nodes).
+            follow_batch=[f"x_{i}" for i in range(self.k + 1)],
             shuffle=False,
         )
 
@@ -80,6 +82,7 @@ class GraphNodeClassificationDataModule(LightningDataModule):
             batch_size=self.batch_size,
             num_workers=self.num_workers,
             pin_memory=self.pin_memory,
-            follow_batch=[f"x_{i}" for i in range(self.k)],
+            # One instance includes k neighboor nodes and target node (= k+1 nodes).
+            follow_batch=[f"x_{i}" for i in range(self.k + 1)],
             shuffle=False,
         )

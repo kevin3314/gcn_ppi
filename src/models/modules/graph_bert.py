@@ -42,3 +42,38 @@ class GraphBertModel(BertPreTrainedModel):
             pooled_output,
         ) + encoder_outputs[1:]
         return outputs
+
+
+class GraphBertModelForNodeClassification(BertPreTrainedModel):
+    def __init__(self, config):
+        super(GraphBertModelForNodeClassification, self).__init__(config)
+        self.config = config
+        self.bert = GraphBertModel(config)
+        self.res_h = torch.nn.Linear(config.x_size, config.hidden_size)
+        self.res_y = torch.nn.Linear(config.x_size, config.y_size)
+        self.cls_y = torch.nn.Linear(config.hidden_size, config.y_size)
+        self.init_weights()
+
+    def forward(
+        self,
+        raw_features: torch.Tensor,
+        wl_role_ids: torch.Tensor,
+        init_pos_ids: torch.Tensor,
+        hop_dis_ids: torch.Tensor,
+    ) -> torch.Tensor:
+        residual_h, residual_y = None, None
+        if self.config.residual_type == "raw":
+            residual_h = self.res_h(raw_features)
+            residual_y = self.res_y(raw_features)
+        if residual_h is None:
+            outputs = self.bert(raw_features, wl_role_ids, init_pos_ids, hop_dis_ids, residual_h=None)[0]
+        else:
+            outputs = self.bert(raw_features, wl_role_ids, init_pos_ids, hop_dis_ids, residual_h=residual_h)[0]
+        # output: (b, seq, hid)
+        outputs = outputs.mean(dim=1)  # (b, hid)
+        logits = self.cls_y(outputs)  # (b, y)
+
+        if residual_y is not None:
+            logits += residual_y
+
+        return logits.squeeze(dim=1)
