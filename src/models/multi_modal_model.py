@@ -84,9 +84,7 @@ class MultiModalModule(LightningModule):
 
     def training_epoch_end(self, outputs: List[Any]):
         # `outputs` is a list of dicts returned from `training_step()`
-        self.log("train/prec_epoch", self.train_prec.compute())
-        self.log("train/rec_epoch", self.train_rec.compute())
-        self.log("train/f1_epoch", self.train_f1.compute())
+        pass
 
     def validation_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.step(batch)
@@ -104,9 +102,7 @@ class MultiModalModule(LightningModule):
         return {"loss": loss, "preds": preds, "targets": targets}
 
     def validation_epoch_end(self, outputs: List[Any]):
-        self.log("val/prec_epoch", self.val_prec.compute())
-        self.log("val/rec_epoch", self.val_rec.compute())
-        self.log("val/f1_epoch", self.val_f1.compute())
+        pass
 
     def test_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.step(batch)
@@ -124,9 +120,7 @@ class MultiModalModule(LightningModule):
         return {"loss": loss, "preds": preds, "targets": targets}
 
     def test_epoch_end(self, outputs: List[Any]):
-        self.log("test/prec_epoch", self.test_prec.compute())
-        self.log("test/rec_epoch", self.test_rec.compute())
-        self.log("test/f1_epoch", self.test_f1.compute())
+        pass
 
     def configure_optimizers(self):
         trainable_named_params = filter(lambda x: x[1].requires_grad, self.model.named_parameters())

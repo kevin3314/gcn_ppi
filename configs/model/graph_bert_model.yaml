@@ -1,4 +1,4 @@
-_target_: src.models.graph_bert_model.GraphBertNodeClassificationModule
+_target_: src.models.graph_bert_model_for_text.GraphBertNodeClassificationModuleForText
 config:
   _target_: src.models.modules.graph_bert_layers.GraphBertConfig
   residual_type: "none"

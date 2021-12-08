@@ -19,6 +19,7 @@ def get_nodes_repr_for_texts(
     load_vocab_path: Optional[Union[str, Path]] = None,
 ) -> np.ndarray:
     """Get dense node representation for texts.
+    If you want to write or overwrite pca instance, set wrtie_pca_path.
 
     Args:
         texts (List[str]): Texts to proess.
@@ -45,7 +46,7 @@ def get_nodes_repr_for_texts(
             pickle.dump(pca, f)
     else:
         with open(load_pca_path, "rb") as f:
-            pca = pickle.load(f)
+            pca: sklearn.decomposition.PCA = pickle.load(f)
     result: np.ndarray = pca.transform(bag_of_words)
     # Retrieve top-node_dim components
     result = result[:, :node_dim]
