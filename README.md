@@ -32,6 +32,11 @@ $ pip install torch-geometric
 4. Fetch pdb ids and ensemble ids corresponding to gene names by `preprocess/convert_to_pdb_ensemble_id.py`.
 5. Fetch pdb files corresponding to pdb ids by `preprocess/fetch_pdb_by_id.py`.
 
+```console
+$ python preprocess/list_gene_names.py data/mm_data/HPRD50_multimodal_dataset.csv  data/mm_data/hprd50_gene_name.txt # 3
+$ python preprocess/convert_to_pdb_ensemble_id.py data/mm_data/hprd50_gene_name.txt data/mm_data/genename2emsembl_pdb.json  # 4
+$ python preprocess/fetch_pdb_by_id.py data/mm_data/genename2emsembl_pdb.json data/pdb # 5
+```
 
 ## How to run
 Install dependencies
