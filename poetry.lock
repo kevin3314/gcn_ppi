@@ -172,6 +172,22 @@ python-versions = ">=3.6"
 numpy = "*"
 
 [[package]]
+name = "biothings-client"
+version = "0.2.6"
+description = "Python Client for BioThings API services."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+requests = ">=2.3.0"
+
+[package.extras]
+caching = ["requests-cache (>=0.4.13)"]
+dataframe = ["pandas (>=0.18.0)"]
+jsonld = ["PyLD (>=0.7.2)"]
+
+[[package]]
 name = "bleach"
 version = "4.1.0"
 description = "An easy safelist-based HTML-sanitizing tool."
@@ -1023,6 +1039,17 @@ description = "multidict implementation"
 category = "main"
 optional = false
 python-versions = ">=3.6"
+
+[[package]]
+name = "mygene"
+version = "3.2.2"
+description = "Python Client for MyGene.Info services."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+biothings-client = ">=0.2.6"
 
 [[package]]
 name = "nbclassic"
@@ -2383,7 +2410,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "9a035eedbd65dc7fa34b14e246c590fada2253ac9229fd6d5c4550ad6f17cd97"
+content-hash = "4928a49109273589154f1f379c42307b5fa17dba4841450cd77b24d9da4d74b1"
 
 [metadata.files]
 absl-py = [
@@ -2511,6 +2538,10 @@ biopython = [
     {file = "biopython-1.79-cp39-cp39-win32.whl", hash = "sha256:8f33dafd3c7254fff5e1684b965e45a7c08d9b8e1bf51562b0a521ff9a6f5ea0"},
     {file = "biopython-1.79-cp39-cp39-win_amd64.whl", hash = "sha256:b3ab26f26a1956ef26303386510d84e917e31fcbbc94918c336da0163ef628df"},
     {file = "biopython-1.79.tar.gz", hash = "sha256:edb07eac99d3b8abd7ba56ff4bedec9263f76dfc3c3f450e7d2e2bcdecf8559b"},
+]
+biothings-client = [
+    {file = "biothings_client-0.2.6-py2.py3-none-any.whl", hash = "sha256:f88f3dfcc962d84b3555a426ae59cf4752761c17b8968ae60532109b9e8a232e"},
+    {file = "biothings_client-0.2.6.tar.gz", hash = "sha256:84d9d577b8fb3963a2fa71c5a13b10411566f3bc2e8ba67bb15de9d2ced08c2d"},
 ]
 bleach = [
     {file = "bleach-4.1.0-py2.py3-none-any.whl", hash = "sha256:4d2651ab93271d1129ac9cbc679f524565cc8a1b791909c4a51eac4446a15994"},
@@ -3086,6 +3117,10 @@ multidict = [
     {file = "multidict-5.1.0-cp39-cp39-win32.whl", hash = "sha256:fc13a9524bc18b6fb6e0dbec3533ba0496bbed167c56d0aabefd965584557d80"},
     {file = "multidict-5.1.0-cp39-cp39-win_amd64.whl", hash = "sha256:7df80d07818b385f3129180369079bd6934cf70469f99daaebfac89dca288359"},
     {file = "multidict-5.1.0.tar.gz", hash = "sha256:25b4e5f22d3a37ddf3effc0710ba692cfc792c2b9edfb9c05aefe823256e84d5"},
+]
+mygene = [
+    {file = "mygene-3.2.2-py2.py3-none-any.whl", hash = "sha256:18d85d1b28ecee2be31d844607fb0c5f7d7c58573278432df819ee2a5e88fe46"},
+    {file = "mygene-3.2.2.tar.gz", hash = "sha256:e729cabbc28cf5afb221bca1ab637883b375cb1a3e2f067587ec79f71affdaea"},
 ]
 nbclassic = [
     {file = "nbclassic-0.3.2-py3-none-any.whl", hash = "sha256:57936a39410a18261442ca3b298421f859c9012272b87bf55e17b5507f052f4d"},
