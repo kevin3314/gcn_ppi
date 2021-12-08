@@ -63,6 +63,7 @@ def main(config: DictConfig):
     # We cannot access to valid/test data during training (i.e. building vocabulary).
     vocab: Dict[str, int] = get_unit_vocab_for_pdbs(train_pdb_ids, pdb_root)
     units_ids, adjacency_matrixes = get_graph_for_pdbs(all_pdb_ids, vocab, thr, pdb_root)
+    res_root.mkdir(exist_ok=True, parents=True)
     with open(res_root / "vocab.json", "w") as f:
         logger.info(f"Save vocab to {res_root / 'vocab.json'}")
         json.dump(vocab, f, indent=4)
