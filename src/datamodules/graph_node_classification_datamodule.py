@@ -15,7 +15,7 @@ class GraphNodeClassificationDataModule(LightningDataModule):
         self,
         data_dir: Union[str, Path],
         k: int = 5,
-        pdb_processed_root: Optional[Union[Path, str]] = "/home/umakoshi/Documents/ppi/gcn_ppi/data/pdb_processed",
+        pdb_processed_root: Optional[Union[Path, str]] = "data/pdb_processed",
         batch_size: int = 32,
         num_workers: int = 0,
         pin_memory: bool = False,
