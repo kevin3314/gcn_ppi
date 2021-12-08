@@ -31,28 +31,20 @@ $ pip install torch-geometric
 3. List up gene names in `HPRD50_multimodal_dataset.csv` by `preprocess/list_gene_names.py`.
 4. Fetch pdb ids and ensemble ids corresponding to gene names by `preprocess/convert_to_pdb_ensemble_id.py`.
 5. Fetch pdb files corresponding to pdb ids by `preprocess/fetch_pdb_by_id.py`.
+6. Preprocess on pdb files (e.g. building adjacency matrix) by `preprocess.py`.
+    - Set configuration on `configs/preprocess.yaml`.
 
 ```console
 $ python preprocess/list_gene_names.py data/mm_data/HPRD50_multimodal_dataset.csv  data/mm_data/hprd50_gene_name.txt # 3
 $ python preprocess/convert_to_pdb_ensemble_id.py data/mm_data/hprd50_gene_name.txt data/mm_data/genename2emsembl_pdb.json  # 4
 $ python preprocess/fetch_pdb_by_id.py data/mm_data/genename2emsembl_pdb.json data/pdb # 5
+$ python preprocess_pdb.py  # 6
 ```
 
 ## How to run
-Install dependencies
-```yaml
-# clone project
-git clone https://github.com/YourGithubName/your-repo-name
-cd your-repo-name
 
-# [OPTIONAL] create conda environment
-bash bash/setup_conda.sh
-
-# install requirements
-pip install -r requirements.txt
-```
-
-Train model with default configuration
+Train model with default configuration.
+If needed, you may modify configuration in `configs/hprd50_config.yaml` and its dependents.
 ```yaml
 # default
 python run.py
