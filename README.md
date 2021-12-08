@@ -10,8 +10,28 @@
 </div>
 
 ## Description
-Predict protein-protein interaction by GNN which is tailored to text modality and protein structural modality.\
+Predict protein-protein interaction (PPI) by GNN which is tailored to text modality and protein structural modality.\
 This repo's core idea is similar to [Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction](https://aclanthology.org/2021.findings-acl.328/).
+
+
+## Requirements
+Dependency is maintained by poetry. Some dependencies (ones related to pytorch-geometric), however, can not installed via poetry and thus need to be installed manually.
+Please follow [instructions](https://github.com/pyg-team/pytorch_geometric#installation).
+We used libraries compatible with pytorch 1.10.0.
+```console
+$ CUDA=cu102  # cpu, cu102, or cu113
+$ pip install torch-scatter -f https://data.pyg.org/whl/torch-1.10.0+${CUDA}.html
+$ pip install torch-sparse -f https://data.pyg.org/whl/torch-1.10.0+${CUDA}.html
+$ pip install torch-geometric
+```
+
+## Preprocess
+1. Download PPI data annotated with gene names from [here](https://github.com/duttaprat/MM_PPI_NLP) to data/mm_data.
+2. Convert xlsm file to csv file (suppose `HPRD50_multimodal_dataset.csv`).
+3. List up gene names in `HPRD50_multimodal_dataset.csv` by `preprocess/list_gene_names.py`.
+4. Fetch pdb ids and ensemble ids corresponding to gene names by `preprocess/convert_to_pdb_ensemble_id.py`.
+5. Fetch pdb files corresponding to pdb ids by `preprocess/fetch_pdb_by_id.py`.
+
 
 ## How to run
 Install dependencies
