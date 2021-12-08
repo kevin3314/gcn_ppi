@@ -29,16 +29,18 @@ $ pip install torch-geometric
 1. Download PPI data annotated with gene names from [here](https://github.com/duttaprat/MM_PPI_NLP) to data/mm_data.
 2. Convert xlsm file to csv file (suppose `HPRD50_multimodal_dataset.csv`).
 3. List up gene names in `HPRD50_multimodal_dataset.csv` by `preprocess/list_gene_names.py`.
-4. Fetch pdb ids and ensemble ids corresponding to gene names by `preprocess/convert_to_pdb_ensemble_id.py`.
-5. Fetch pdb files corresponding to pdb ids by `preprocess/fetch_pdb_by_id.py`.
-6. Preprocess on pdb files (e.g. building adjacency matrix) by `preprocess.py`.
+4. Split csv by `preprocess/split_csv.py`
+5. Fetch pdb ids and ensemble ids corresponding to gene names by `preprocess/convert_to_pdb_ensemble_id.py`.
+6. Fetch pdb files corresponding to pdb ids by `preprocess/fetch_pdb_by_id.py`.
+7. Preprocess on pdb files (e.g. building adjacency matrix) by `preprocess.py`.
     - Set configuration on `configs/preprocess.yaml`.
 
 ```console
 $ python preprocess/list_gene_names.py data/mm_data/HPRD50_multimodal_dataset.csv  data/mm_data/hprd50_gene_name.txt # 3
-$ python preprocess/convert_to_pdb_ensemble_id.py data/mm_data/hprd50_gene_name.txt data/mm_data/genename2emsembl_pdb.json  # 4
-$ python preprocess/fetch_pdb_by_id.py data/mm_data/genename2emsembl_pdb.json data/pdb # 5
-$ python preprocess_pdb.py  # 6
+$ python preprocess/split_csv.py data/mm_data/HPRD50_multimodal_dataset.csv 0.9,0.05,0.05 data/hprd50  # 4
+$ python preprocess/convert_to_pdb_ensemble_id.py data/mm_data/hprd50_gene_name.txt data/mm_data/genename2emsembl_pdb.json  # 5
+$ python preprocess/fetch_pdb_by_id.py data/mm_data/genename2emsembl_pdb.json data/pdb # 6
+$ python preprocess_pdb.py  # 7
 ```
 
 ## How to run
