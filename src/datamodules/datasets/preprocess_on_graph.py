@@ -1,3 +1,5 @@
+# Copyright (c) 2017 Jiawei Zhang <jwzhanggy@gmail.com>
+
 """From https://github.com/jwzhanggy/Graph-Bert/blob/e3e5fc57b2cb27f86b38bd87982be1d82303df3d/code/MethodHopDistance.py
 """
 
