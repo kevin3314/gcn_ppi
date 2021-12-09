@@ -123,20 +123,33 @@ def build_edges_by_proteins(
     # (ids, 2)
     id2all_protein_counts: Dict[str, Dict[str, int]] = defaultdict(lambda: defaultdict(int))
     # To check whether target protein has already been seen.
-    id2read_references: Dict[str, Set[str]] = defaultdict(set)
+    # Some protein is missing, so remember reference to protein correspondence.
+    id2read_references: Dict[str, Dict[str, str]] = defaultdict(dict)
     for _id, protein0, protein1, ref0, ref1 in zip(ids, protein0s, protein1s, ref0s, ref1s):
         if ref0 not in id2read_references[_id]:
-            id2read_references[_id].add(ref0)
+            id2read_references[_id][ref0] = protein0
             id2all_protein_counts[_id][protein0] += 1
         if ref1 not in id2read_references[_id]:
-            id2read_references[_id].add(ref1)
+            id2read_references[_id][ref1] = protein1
             id2all_protein_counts[_id][protein1] += 1
     # (num_instances)
     contain_protein_counts = []
-    for _id, protein0, protein1 in zip(ids, protein0s, protein1s):
+    for _id, protein0, protein1, ref0, ref1 in zip(ids, protein0s, protein1s, ref0s, ref1s):
         contain_protein_counts.append(dict(id2all_protein_counts[_id]))
-        contain_protein_counts[-1][protein0] -= 1
-        contain_protein_counts[-1][protein1] -= 1
+        try:
+            contain_protein_counts[-1][protein0] -= 1
+        except KeyError:
+            logger.debug("Found missing protein name. Try to recover by reference.")
+            logger.debug("_id: %s, ref0: %s, protein0: %s", _id, ref0, protein0)
+            logger.debug("id2read_references[_id]: %s", id2read_references[_id])
+            contain_protein_counts[-1][id2read_references[_id][ref0]] -= 1
+        try:
+            contain_protein_counts[-1][protein1] -= 1
+        except KeyError:
+            logger.debug("Found missing protein name. Try to recover by reference.")
+            logger.debug("_id: %s, ref1: %s, protein1: %s", _id, ref1, protein1)
+            logger.debug("id2read_references[_id]: %s", id2read_references[_id])
+            contain_protein_counts[-1][id2read_references[_id][ref1]] -= 1
     contain_protein_sets: List[Set[str]] = [
         set(key for key, value in contain_protein_count.items() if value > 0)
         for contain_protein_count in contain_protein_counts
