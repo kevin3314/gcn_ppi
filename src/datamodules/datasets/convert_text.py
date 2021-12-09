@@ -95,7 +95,7 @@ def convert_text_to_one_hot_vector(
 def build_edges_by_proteins(
     ids: Sequence[str],
     protein0s: Sequence[int],
-    pritein1s: Sequence[int],
+    protein1s: Sequence[int],
     s_path: Optional[Union[str, Path]] = None,
     alpha: float = 0.15,
 ) -> np.ndarray:
@@ -107,7 +107,7 @@ def build_edges_by_proteins(
     Args:
         ids (Sequence[int]): Ids of instances.
         protein0s (Sequence[int]): Protein ids of instance 0.
-        pritein1s (Sequence[int]): Protein ids of instance 1.
+        protein1s (Sequence[int]): Protein ids of instance 1.
         s_path (Optional[Union[str, Path]]): Path to save S.
         alpha: (Optional[float]): Coefficient to calculate S.
 
@@ -119,12 +119,12 @@ def build_edges_by_proteins(
     # (ids, 2)
     # FIXME: The same protein is counted multiple times.
     id2all_protein_counts: Dict[str, Dict[str, int]] = defaultdict(lambda: defaultdict(int))
-    for _id, protein0, protein1 in zip(ids, protein0s, pritein1s):
+    for _id, protein0, protein1 in zip(ids, protein0s, protein1s):
         id2all_protein_counts[_id][protein0] += 1
         id2all_protein_counts[_id][protein1] += 1
     # (num_instances)
     contain_protein_counts = []
-    for _id, protein0, protein1 in zip(ids, protein0s, pritein1s):
+    for _id, protein0, protein1 in zip(ids, protein0s, protein1s):
         contain_protein_counts.append(id2all_protein_counts[_id])
         contain_protein_counts[-1][protein0] -= 1
         contain_protein_counts[-1][protein1] -= 1
