@@ -83,7 +83,7 @@ def convert_text_to_one_hot_vector(
 
     vocab_size = len(vocab)
     unk_idx = vocab_size
-    # Bag of words for each sample
+    # Onehot-like representation for each sample
     bag_of_words: List[np.ndarray] = [np.zeros(vocab_size + 1) for _ in range(len(texts))]
     for text, bag_of_word in zip(texts, bag_of_words):
         for word in text.strip().split():
@@ -117,6 +117,7 @@ def build_edges_by_proteins(
     # Constract all proteins for each ids (instance with same id share under text)
     # Then substruct targeted protein's count
     # (ids, 2)
+    # FIXME: The same protein is counted multiple times.
     id2all_protein_counts: Dict[str, Dict[str, int]] = defaultdict(lambda: defaultdict(int))
     for _id, protein0, protein1 in zip(ids, protein0s, pritein1s):
         id2all_protein_counts[_id][protein0] += 1
