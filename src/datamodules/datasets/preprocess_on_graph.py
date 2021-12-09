@@ -13,14 +13,14 @@ from numpy import ndarray
 
 def wl_node_coloring(
     ids: Sequence[int],
-    edges: Sequence[Sequence[int]],
+    edges: ndarray,
     max_iter: Optional[int] = 2,
 ) -> Dict[int, int]:
     """WL node coloring.
 
     Args:
         ids (Sequence[int]): Node ids list.
-        edges (Sequence[Sequence[int]]): Edge List.
+        edges (ndarray): Edge List.  # (num_edges, 2)
         max_iter (Optional[int], optional): Max iterations of algorithm. Defaults to 2.
 
     Returns:
@@ -95,14 +95,14 @@ def batch_graph(
 
 def get_hop_distance(
     ids: Sequence[int],
-    edges: Sequence[Sequence[int]],
+    edges: ndarray,
     batch_dict: Dict[int, List[Tuple[int, ndarray]]],
 ) -> Dict[int, Dict[int, int]]:
     """Get hop distance given S.
 
     Args:
         ids (Sequence[int]): Node ids list.
-        edges (Sequence[Sequence[int]]): Edge List.
+        edges (ndarray): Edge List.
         batch_dict_path (Union[str, Path]): Path to load batch dict contains maping
                                             from node ids to neighbor node ids.
 

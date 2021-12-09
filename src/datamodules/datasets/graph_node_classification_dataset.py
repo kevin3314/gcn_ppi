@@ -152,7 +152,9 @@ class GraphNodeClassificationDataset(Dataset):
         amino_acids_edges1: List[torch.Tensor] = [from_scipy_sparse_matrix(adj)[0] for adj in amino_acids_adj_list1]
 
         text_node_ids = np.arange(text_nodes.shape[0])
-        text_edges = build_edges_by_proteins(df["ID"].values, df["PROTEIN0"].values, df["PROTEIN1"].values, s_path)
+        text_edges: np.ndarray = build_edges_by_proteins(
+            df["ID"].values, df["PROTEIN0"].values, df["PROTEIN1"].values, s_path
+        )
         labels = df["GOLD"].astype(int)
 
         wl_dict: Dict[int, int] = wl_node_coloring(text_node_ids, text_edges)
