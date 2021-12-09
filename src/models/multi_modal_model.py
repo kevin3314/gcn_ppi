@@ -72,7 +72,7 @@ class MultiModalModule(LightningModule):
         prec = self.train_prec(preds, targets.long())
         rec = self.train_rec(preds, targets.long())
         f1 = self.train_f1(preds, targets.long())
-        self.log("train/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
+        self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
         self.log("train/prec", prec, on_step=False, on_epoch=True, prog_bar=True)
         self.log("train/rec", rec, on_step=False, on_epoch=True, prog_bar=True)
         self.log("train/f1", f1, on_step=False, on_epoch=True, prog_bar=True)
