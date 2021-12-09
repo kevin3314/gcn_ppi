@@ -1,3 +1,4 @@
+import logging
 import os
 import pickle
 from collections import defaultdict
@@ -8,6 +9,9 @@ import networkx as nx
 import numpy as np
 import scipy.sparse as sps
 import sklearn.decomposition
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def get_nodes_repr_for_texts(
@@ -108,14 +112,16 @@ def build_edges_by_proteins(
         alpha: (Optional[float]): Coefficient to calculate S.
 
     Returns:
-        np.ndarray: Numpy array of edges.
+        np.ndarray: Numpy array of edges. The number of nodes is len(ids).
     """
     # Constract all proteins for each ids (instance with same id share under text)
     # Then substruct targeted protein's count
+    # (ids, 2)
     id2all_protein_counts: Dict[str, Dict[str, int]] = defaultdict(lambda: defaultdict(int))
     for _id, protein0, protein1 in zip(ids, protein0s, pritein1s):
         id2all_protein_counts[_id][protein0] += 1
         id2all_protein_counts[_id][protein1] += 1
+    # (num_instances)
     contain_protein_counts = []
     for _id, protein0, protein1 in zip(ids, protein0s, pritein1s):
         contain_protein_counts.append(id2all_protein_counts[_id])
@@ -133,7 +139,7 @@ def build_edges_by_proteins(
             if len(contain_protein_set0 & contain_protein_set1) > 0:
                 j = i + _j + 1
                 adj[i][j] = 1
-                adj[j][j] = 1
+                adj[j][i] = 1
     D = nx.DiGraph(adj)
     edges = np.array([(u, v) for (u, v) in D.edges()])
 
