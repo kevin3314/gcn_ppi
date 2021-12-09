@@ -96,6 +96,8 @@ def build_edges_by_proteins(
     ids: Sequence[str],
     protein0s: Sequence[int],
     protein1s: Sequence[int],
+    ref0s: Sequence[str],
+    ref1s: Sequence[str],
     s_path: Optional[Union[str, Path]] = None,
     alpha: float = 0.15,
 ) -> np.ndarray:
@@ -108,6 +110,8 @@ def build_edges_by_proteins(
         ids (Sequence[int]): Ids of instances.
         protein0s (Sequence[int]): Protein ids of instance 0.
         protein1s (Sequence[int]): Protein ids of instance 1.
+        ref0s (Sequence[str]): Reference text of each protein0.
+        ref1s (Sequence[str]): Reference text of each protein1.
         s_path (Optional[Union[str, Path]]): Path to save S.
         alpha: (Optional[float]): Coefficient to calculate S.
 
