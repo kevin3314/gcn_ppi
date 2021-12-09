@@ -134,7 +134,7 @@ def build_edges_by_proteins(
     # (num_instances)
     contain_protein_counts = []
     for _id, protein0, protein1 in zip(ids, protein0s, protein1s):
-        contain_protein_counts.append(id2all_protein_counts[_id])
+        contain_protein_counts.append(dict(id2all_protein_counts[_id]))
         contain_protein_counts[-1][protein0] -= 1
         contain_protein_counts[-1][protein1] -= 1
     contain_protein_sets: List[Set[str]] = [
