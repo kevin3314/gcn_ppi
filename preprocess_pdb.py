@@ -78,7 +78,7 @@ def main(config: DictConfig):
 
 def get_unit_vocab_for_pdbs(
     pdbs: List[str],
-    pdb_root: Optional[Union[Path, str]] = "/data1/NLP_PPI/ppi_data/pdb",
+    pdb_root: Optional[Union[Path, str]] = "data/pdb",
 ) -> Dict[str, int]:
     """Get vocabulary for units in pdbs.
 
@@ -98,7 +98,7 @@ def get_graph_for_pdbs(
     pdbs: List[str],
     vocab: Dict[str, int],
     thr: Optional[float] = 8,
-    pdb_root: Optional[Union[Path, str]] = "/data1/NLP_PPI/ppi_data/pdb",
+    pdb_root: Optional[Union[Path, str]] = "data/pdb",
 ):
     """Get graph for pdbs.
 
@@ -120,7 +120,7 @@ def get_graph_for_pdbs(
 
 def get_pdb_path(
     pdb_id: str,
-    pdb_root: Optional[Union[Path, str]] = "/data1/NLP_PPI/ppi_data/pdb",
+    pdb_root: Optional[Union[Path, str]] = "data/pdb",
 ) -> str:
     """Get pdb path.
 
@@ -138,7 +138,7 @@ def get_pdb_path(
 
 def get_names_coordinates_for_pdbs(
     pdbs: List[str],
-    pdb_root: Optional[Union[Path, str]] = "/data1/NLP_PPI/ppi_data/pdb",
+    pdb_root: Optional[Union[Path, str]] = "data/pdb",
 ) -> Tuple[List[List[str]], List[np.ndarray]]:
     """Get names and coordinates for pdbs.
     Basically following https://yoshidabenjiro.hatenablog.com/entry/2020/01/15/171333.
