@@ -96,8 +96,6 @@ def build_edges_by_proteins(
     ids: Sequence[str],
     protein0s: Sequence[int],
     protein1s: Sequence[int],
-    ref0s: Sequence[str],
-    ref1s: Sequence[str],
     s_path: Optional[Union[str, Path]] = None,
     alpha: float = 0.15,
 ) -> np.ndarray:
@@ -110,8 +108,6 @@ def build_edges_by_proteins(
         ids (Sequence[int]): Ids of instances.
         protein0s (Sequence[int]): Protein ids of instance 0.
         protein1s (Sequence[int]): Protein ids of instance 1.
-        ref0s (Sequence[str]): Reference text of each protein0.
-        ref1s (Sequence[str]): Reference text of each protein1.
         s_path (Optional[Union[str, Path]]): Path to save S.
         alpha: (Optional[float]): Coefficient to calculate S.
 
@@ -121,39 +117,17 @@ def build_edges_by_proteins(
     # Constract all proteins for each ids (instance with same id share under text)
     # Then substruct targeted protein's count
     # (ids, 2)
-    id2all_protein_counts: Dict[str, Dict[str, int]] = defaultdict(lambda: defaultdict(int))
+    id2all_proteins: Dict[str, Set[str]] = defaultdict(set)
     # To check whether target protein has already been seen.
     # Some protein is missing, so remember reference to protein correspondence.
-    id2read_references: Dict[str, Dict[str, str]] = defaultdict(dict)
-    for _id, protein0, protein1, ref0, ref1 in zip(ids, protein0s, protein1s, ref0s, ref1s):
-        if ref0 not in id2read_references[_id]:
-            id2read_references[_id][ref0] = protein0
-            id2all_protein_counts[_id][protein0] += 1
-        if ref1 not in id2read_references[_id]:
-            id2read_references[_id][ref1] = protein1
-            id2all_protein_counts[_id][protein1] += 1
+    for _id, protein0, protein1 in zip(ids, protein0s, protein1s):
+        id2all_proteins[_id].add(protein0)
+        id2all_proteins[_id].add(protein1)
+
     # (num_instances)
-    contain_protein_counts = []
-    for _id, protein0, protein1, ref0, ref1 in zip(ids, protein0s, protein1s, ref0s, ref1s):
-        contain_protein_counts.append(dict(id2all_protein_counts[_id]))
-        try:
-            contain_protein_counts[-1][protein0] -= 1
-        except KeyError:
-            logger.debug("Found missing protein name. Try to recover by reference.")
-            logger.debug("_id: %s, ref0: %s, protein0: %s", _id, ref0, protein0)
-            logger.debug("id2read_references[_id]: %s", id2read_references[_id])
-            contain_protein_counts[-1][id2read_references[_id][ref0]] -= 1
-        try:
-            contain_protein_counts[-1][protein1] -= 1
-        except KeyError:
-            logger.debug("Found missing protein name. Try to recover by reference.")
-            logger.debug("_id: %s, ref1: %s, protein1: %s", _id, ref1, protein1)
-            logger.debug("id2read_references[_id]: %s", id2read_references[_id])
-            contain_protein_counts[-1][id2read_references[_id][ref1]] -= 1
-    contain_protein_sets: List[Set[str]] = [
-        set(key for key, value in contain_protein_count.items() if value > 0)
-        for contain_protein_count in contain_protein_counts
-    ]
+    contain_protein_sets: List[set[str]] = []
+    for _id, protein0, protein1 in zip(ids, protein0s, protein1s):
+        contain_protein_sets.append(id2all_proteins[_id])
     adj = np.zeros((len(ids), len(ids)))
 
     # Build edges based on contain_protein_sets

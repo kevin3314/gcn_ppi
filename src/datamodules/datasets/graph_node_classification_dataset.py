@@ -160,8 +160,6 @@ class GraphNodeClassificationDataset(Dataset):
             df["ID"].values,
             df["PROTEIN0"].values,
             df["PROTEIN1"].values,
-            df["ref0"].values,
-            df["ref1"].values,
             s_path,
         )
         labels = df["GOLD"].astype(int)
