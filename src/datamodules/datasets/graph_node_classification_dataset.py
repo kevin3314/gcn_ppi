@@ -17,6 +17,10 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
+NULL_EMBEDDING = torch.ones(1)
+NULL_ADJ = coo_matrix((0, 0))
+
+
 class NeighborData(Data):
     def __init__(self, edge_indices: Optional[List[torch.Tensor]] = None, xs: Optional[List[torch.Tensor]] = None):
         super().__init__()
@@ -77,13 +81,13 @@ class GraphNodeClassificationDataset(Dataset):
         res0 = [
             torch.from_numpy(np.load(pdb_root / f"{pdb_id}_ids.npy"))
             if (pdb_root / f"{pdb_id}_ids.npy").exists()
-            else torch.ones(1)
+            else NULL_EMBEDDING
             for pdb_id in pdb_ids0
         ]
         res1 = [
             torch.from_numpy(np.load(pdb_root / f"{pdb_id}_ids.npy"))
             if (pdb_root / f"{pdb_id}_ids.npy").exists()
-            else torch.ones(1)
+            else NULL_EMBEDDING
             for pdb_id in pdb_ids1
         ]
         return res0, res1
@@ -93,15 +97,11 @@ class GraphNodeClassificationDataset(Dataset):
         pdb_ids0: List[str], pdb_ids1: List[str], pdb_root: Path
     ) -> Tuple[List[coo_matrix], List[coo_matrix]]:
         res0 = [
-            load_npz(pdb_root / f"{pdb_id}_adj.npz")
-            if (pdb_root / f"{pdb_id}_adj.npz").exists()
-            else coo_matrix((0, 0))
+            load_npz(pdb_root / f"{pdb_id}_adj.npz") if (pdb_root / f"{pdb_id}_adj.npz").exists() else NULL_ADJ
             for pdb_id in pdb_ids0
         ]
         res1 = [
-            load_npz(pdb_root / f"{pdb_id}_adj.npz")
-            if (pdb_root / f"{pdb_id}_adj.npz").exists()
-            else coo_matrix((0, 0))
+            load_npz(pdb_root / f"{pdb_id}_adj.npz") if (pdb_root / f"{pdb_id}_adj.npz").exists() else NULL_ADJ
             for pdb_id in pdb_ids1
         ]
         return res0, res1
