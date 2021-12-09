@@ -20,6 +20,8 @@ logger.setLevel(logging.INFO)
 class NeighborData(Data):
     def __init__(self, edge_indices: Optional[List[torch.Tensor]] = None, xs: Optional[List[torch.Tensor]] = None):
         super().__init__()
+        # Null check is needed because instantination with
+        # none arguments happens in complex inherence process.
         if xs is not None:
             for i, x in enumerate(xs):
                 setattr(self, f"x_{i}", x)
@@ -152,6 +154,8 @@ class GraphNodeClassificationDataset(Dataset):
         amino_acids_edges1: List[torch.Tensor] = [from_scipy_sparse_matrix(adj)[0] for adj in amino_acids_adj_list1]
 
         text_node_ids = np.arange(text_nodes.shape[0])
+        # To handle proteins contained by each instance, use another instance's information
+        # which share common text.
         text_edges: np.ndarray = build_edges_by_proteins(
             df["ID"].values, df["PROTEIN0"].values, df["PROTEIN1"].values, s_path
         )

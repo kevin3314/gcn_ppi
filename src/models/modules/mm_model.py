@@ -33,6 +33,7 @@ class MultiModalModel(torch.nn.Module):
         k = raw_features.shape[1]
         protein_nodes = []
         for i in range(k):
+            # If node is empty (i.e. torch.ones(1), then use null embedding)
             nodes0 = getattr(amino_acids_graph_data0, f"x_{i}")
             edge0 = getattr(amino_acids_graph_data0, f"edge_index_{i}")
             nodes1 = getattr(amino_acids_graph_data1, f"x_{i}")
