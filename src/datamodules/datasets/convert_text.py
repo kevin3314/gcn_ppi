@@ -121,11 +121,16 @@ def build_edges_by_proteins(
     # Constract all proteins for each ids (instance with same id share under text)
     # Then substruct targeted protein's count
     # (ids, 2)
-    # FIXME: The same protein is counted multiple times.
     id2all_protein_counts: Dict[str, Dict[str, int]] = defaultdict(lambda: defaultdict(int))
-    for _id, protein0, protein1 in zip(ids, protein0s, protein1s):
-        id2all_protein_counts[_id][protein0] += 1
-        id2all_protein_counts[_id][protein1] += 1
+    # To check whether target protein has already been seen.
+    id2read_references: Dict[str, Set[str]] = defaultdict(set)
+    for _id, protein0, protein1, ref0, ref1 in zip(ids, protein0s, protein1s, ref0s, ref1s):
+        if ref0 not in id2read_references[_id]:
+            id2read_references[_id].add(ref0)
+            id2all_protein_counts[_id][protein0] += 1
+        if ref1 not in id2read_references[_id]:
+            id2read_references[_id].add(ref1)
+            id2all_protein_counts[_id][protein1] += 1
     # (num_instances)
     contain_protein_counts = []
     for _id, protein0, protein1 in zip(ids, protein0s, protein1s):
