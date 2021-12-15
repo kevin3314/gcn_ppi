@@ -2,6 +2,7 @@ import logging
 from typing import Any, List
 
 import torch
+import torch.nn.functional as F
 from pytorch_lightning import LightningModule
 from torchmetrics import F1, Precision, Recall
 from transformers import AdamW, get_linear_schedule_with_warmup
@@ -58,7 +59,7 @@ class GraphBertNodeClassificationModuleForText(LightningModule):
         raw_features, _, _, wl_role_ids, init_pos_ids, hop_dis_ids, labels = batch
         logits = self.forward(raw_features, wl_role_ids, init_pos_ids, hop_dis_ids)
         loss = self.criterion(logits, labels.float())
-        preds = (logits > 0.0).long()
+        preds = F.sigmoid(logits)
         # preds = torch.argmax(logits, dim=1)
         return loss, preds, labels
 
