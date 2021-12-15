@@ -1,3 +1,4 @@
+import logging
 from typing import Any, List
 
 import torch
@@ -7,6 +8,9 @@ from transformers import AdamW, get_linear_schedule_with_warmup
 
 from src.models.modules.graph_bert import GraphBertModelForNodeClassification
 from src.models.modules.graph_bert_layers import GraphBertConfig
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class GraphBertNodeClassificationModuleForText(LightningModule):
@@ -83,9 +87,9 @@ class GraphBertNodeClassificationModuleForText(LightningModule):
         loss, preds, targets = self.step(batch)
 
         # log val metrics
-        prec = self.train_prec(preds, targets.long())
-        rec = self.train_rec(preds, targets.long())
-        f1 = self.train_f1(preds, targets.long())
+        prec = self.val_prec(preds, targets.long())
+        rec = self.val_rec(preds, targets.long())
+        f1 = self.val_f1(preds, targets.long())
         # log val metrics
         self.log("val/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
         self.log("val/prec", prec, on_step=False, on_epoch=True, prog_bar=True)
@@ -101,9 +105,9 @@ class GraphBertNodeClassificationModuleForText(LightningModule):
         loss, preds, targets = self.step(batch)
 
         # log test metrics
-        prec = self.train_prec(preds, targets.long())
-        rec = self.train_rec(preds, targets.long())
-        f1 = self.train_f1(preds, targets.long())
+        prec = self.test_prec(preds, targets.long())
+        rec = self.test_rec(preds, targets.long())
+        f1 = self.test_f1(preds, targets.long())
 
         self.log("test/loss", loss, on_step=False, on_epoch=True)
         self.log("test/prec", prec, on_step=False, on_epoch=True, prog_bar=True)
