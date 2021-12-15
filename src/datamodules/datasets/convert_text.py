@@ -1,3 +1,5 @@
+# Copyright (c) 2017 Jiawei Zhang <jwzhanggy@gmail.com>
+
 import logging
 import os
 import pickle
@@ -99,10 +101,8 @@ def build_edges_by_proteins(
     s_path: Optional[Union[str, Path]] = None,
     alpha: float = 0.15,
 ) -> np.ndarray:
-    """Build edges based on whether instance shares same protein.
-
-    MEMO:
-        Convert protein name to index should boost performance.
+    """Build edges based on whether instance shares the protein.
+    Quote from https://github.com/jwzhanggy/Graph-Bert/blob/e3e5fc57b2cb27f86b38bd87982be1d82303df3d/code/DatasetLoader.py  # noqa: E501
 
     Args:
         ids (Sequence[int]): Ids of instances.
