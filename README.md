@@ -25,7 +25,7 @@ We list only the result of the HPRD50 dataset because the BioInfer dataset, anno
 | Text + Protein graph | 92.3 |
 
 ## Requirements
-Dependency is maintained by poetry. Some dependencies (ones related to pytorch-geometric), however, can not installed via poetry and thus need to be installed manually.
+Dependency is maintained by poetry. Some dependencies (ones related to pytorch-geometric), however, can not be installed via poetry and need to be installed manually.
 Please follow [instructions](https://github.com/pyg-team/pytorch_geometric#installation).
 We used libraries compatible with pytorch 1.10.0.
 ```console
