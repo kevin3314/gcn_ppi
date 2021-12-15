@@ -10,11 +10,15 @@
 </div>
 
 ## Description
-Predict protein-protein interaction (PPI) by GNN which is tailored to text modality and protein structural modality.\
-This repo's core idea is similar to [Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction](https://aclanthology.org/2021.findings-acl.328/).
+Predict protein-protein interaction (PPI) by GNN tailored to text modality and protein structural modality.\
+This repo's core idea is similar to [Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction](https://aclanthology.org/2021.findings-acl.328/).\
+Main differences is that our model for protein structural modality process over residues rather than atoms.
+
 
 
 ## Results
+We list only the result of the HPRD50 dataset because the BioInfer dataset, annotated with gene names, distributed [here](https://github.com/duttaprat/MM_PPI_NLP) is broken.
+
 | Model | HPRD50 |
 | :--- | ---: |
 | Text only | 60.8 |
