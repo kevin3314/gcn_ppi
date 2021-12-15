@@ -21,8 +21,8 @@ We list only the result of the HPRD50 dataset because the BioInfer dataset, anno
 
 | Model | HPRD50 |
 | :--- | ---: |
-| Text only | 60.8 |
-| Text + Protein graph | 92.3 |
+| Text only | - |
+| Text + Protein graph | - |
 
 ## Requirements
 Dependency is maintained by poetry. Some dependencies (ones related to pytorch-geometric), however, can not be installed via poetry and need to be installed manually.
