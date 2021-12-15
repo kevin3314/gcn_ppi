@@ -14,6 +14,12 @@ Predict protein-protein interaction (PPI) by GNN which is tailored to text modal
 This repo's core idea is similar to [Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction](https://aclanthology.org/2021.findings-acl.328/).
 
 
+## Results
+| Model | HPRD50 |
+| :--- | ---: |
+| Text only | 60.8 |
+| Text + Protein graph | 92.3 |
+
 ## Requirements
 Dependency is maintained by poetry. Some dependencies (ones related to pytorch-geometric), however, can not installed via poetry and thus need to be installed manually.
 Please follow [instructions](https://github.com/pyg-team/pytorch_geometric#installation).
