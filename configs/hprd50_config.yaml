@@ -42,3 +42,5 @@ seed: 42
 
 # name of the run, accessed by loggers
 name: null
+
+load_checkpoint:
