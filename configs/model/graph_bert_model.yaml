@@ -5,7 +5,7 @@ config:
   x_size: 1000
   y_size: 1
   k: 5
-  max_wl_role_index: 100
+  max_wl_role_index: 200
   max_hop_dis_index: 100
   max_inti_pos_index: 100
   hidden_size: 32
