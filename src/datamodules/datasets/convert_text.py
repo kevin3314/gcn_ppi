@@ -3,9 +3,8 @@
 import logging
 import os
 import pickle
-from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import networkx as nx
 import numpy as np
@@ -95,7 +94,6 @@ def convert_text_to_one_hot_vector(
 
 
 def build_edges_by_proteins(
-    ids: Sequence[str],
     protein0s: Sequence[int],
     protein1s: Sequence[int],
     s_path: Optional[Union[str, Path]] = None,
@@ -105,7 +103,6 @@ def build_edges_by_proteins(
     Quote from https://github.com/jwzhanggy/Graph-Bert/blob/e3e5fc57b2cb27f86b38bd87982be1d82303df3d/code/DatasetLoader.py  # noqa: E501
 
     Args:
-        ids (Sequence[int]): Ids of instances.
         protein0s (Sequence[int]): Protein ids of instance 0.
         protein1s (Sequence[int]): Protein ids of instance 1.
         s_path (Optional[Union[str, Path]]): Path to save S.
@@ -117,18 +114,18 @@ def build_edges_by_proteins(
     # Constract all proteins for each ids (instance with same id share under text)
     # Then substruct targeted protein's count
     # (ids, 2)
-    id2all_proteins: Dict[str, Set[str]] = defaultdict(set)
+    # id2all_proteins: Dict[str, Set[str]] = defaultdict(set)
     # To check whether target protein has already been seen.
     # Some protein is missing, so remember reference to protein correspondence.
-    for _id, protein0, protein1 in zip(ids, protein0s, protein1s):
-        id2all_proteins[_id].add(protein0)
-        id2all_proteins[_id].add(protein1)
+    # for _id, protein0, protein1 in zip(ids, protein0s, protein1s):
+    #     id2all_proteins[_id].add(protein0)
+    #     id2all_proteins[_id].add(protein1)
 
     # (num_instances)
     contain_protein_sets: List[set[str]] = []
-    for _id, protein0, protein1 in zip(ids, protein0s, protein1s):
-        contain_protein_sets.append(id2all_proteins[_id])
-    adj = np.zeros((len(ids), len(ids)))
+    for protein0, protein1 in zip(protein0s, protein1s):
+        contain_protein_sets.append(set([protein0, protein1]))
+    adj = np.zeros((len(protein0s), len(protein0s)))
 
     # Build edges based on contain_protein_sets
     for i, contain_protein_set0 in enumerate(contain_protein_sets):

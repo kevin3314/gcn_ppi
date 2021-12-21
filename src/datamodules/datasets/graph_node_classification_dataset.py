@@ -157,7 +157,6 @@ class GraphNodeClassificationDataset(Dataset):
         # To handle proteins contained by each instance, use another instance's information
         # which share common text.
         text_edges: np.ndarray = build_edges_by_proteins(
-            df["ID"].values,
             df["PROTEIN0"].values,
             df["PROTEIN1"].values,
             s_path,
