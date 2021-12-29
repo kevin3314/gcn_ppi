@@ -7,6 +7,7 @@ https://github.com/jwzhanggy/Graph-Bert/blob/e3e5fc57b2cb27f86b38bd87982be1d8230
 """
 
 import hashlib
+import logging
 import pickle
 from collections import defaultdict
 from pathlib import Path
@@ -14,6 +15,9 @@ from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import networkx as nx
 from numpy import ndarray
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def wl_node_coloring(
@@ -72,7 +76,7 @@ def wl_node_coloring(
 
 
 def batch_graph(
-    ids: Sequence[int], s_path: Union[str, Path], k: Optional[int] = 5
+    index_id_dict: Dict[int, int], s_path: Optional[Union[str, Path]] = None, S: Optional[ndarray] = None, k: int = 5
 ) -> Dict[int, List[Tuple[int, ndarray]]]:
     """Batch graph by top-k sampling based on S matrix.
 
@@ -85,16 +89,22 @@ def batch_graph(
         Dict[int[List[Tuple[int, ndarray]]]]: Mapping from node id to list of tuple
                                              (neighbor_id, s_value)
     """
-    with open(s_path, "rb") as f:
-        S = pickle.load(f)
+    assert s_path or S is not None
+    if s_path:
+        with open(s_path, "rb") as f:
+            S = pickle.load(f)
     user_top_k_neighbor_intimacy_dict = {}
-    for node_index in ids:
+
+    for node_index in index_id_dict:
+        node_id = index_id_dict[node_index]
         s = S[node_index]
         s[node_index] = -1000.0
         top_k_neighbor_index = s.argsort()[-k:][::-1]
-        user_top_k_neighbor_intimacy_dict[node_index] = []
+        user_top_k_neighbor_intimacy_dict[node_id] = []
         for neighbor_index in top_k_neighbor_index:
-            user_top_k_neighbor_intimacy_dict[node_index].append((neighbor_index, s[neighbor_index]))
+            neighbor_id = index_id_dict[neighbor_index]
+            user_top_k_neighbor_intimacy_dict[node_id].append((neighbor_id, s[neighbor_index]))
+
     return user_top_k_neighbor_intimacy_dict
 
 

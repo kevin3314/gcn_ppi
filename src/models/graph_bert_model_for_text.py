@@ -3,9 +3,9 @@ from typing import Any, List
 
 import torch
 import torch.nn.functional as F
+import torch.optim as optim
 from pytorch_lightning import LightningModule
 from torchmetrics import F1, Precision, Recall
-from transformers import AdamW, get_linear_schedule_with_warmup
 
 from src.models.modules.graph_bert import GraphBertModelForNodeClassification
 from src.models.modules.graph_bert_layers import GraphBertConfig
@@ -20,13 +20,10 @@ class GraphBertNodeClassificationModuleForText(LightningModule):
     def __init__(
         self,
         config: GraphBertConfig,
-        train_size: int = 2326,
-        batch_size: int = 32,
-        max_epochs: int = 50,
-        lr: float = 5e-5,
+        lr: float = 1e-2,
         warmup_epoch: int = 5,
         eps: float = 1e-8,
-        weight_decay: float = 0.01,
+        weight_decay: float = 5e-4,
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -121,27 +118,5 @@ class GraphBertNodeClassificationModuleForText(LightningModule):
         pass
 
     def configure_optimizers(self):
-        trainable_named_params = filter(lambda x: x[1].requires_grad, self.model.named_parameters())
-        no_decay = ("bias", "LayerNorm.weight")
-        optimizer_grouped_parameters = [
-            {
-                "params": [p for n, p in trainable_named_params if not any(nd in n for nd in no_decay)],
-                "weight_decay": self.hparams.weight_decay,
-            },
-            {"params": [p for n, p in trainable_named_params if any(nd in n for nd in no_decay)], "weight_decay": 0.0},
-        ]
-        optimizer = AdamW(params=optimizer_grouped_parameters, lr=self.hparams.lr, eps=self.hparams.eps)
-        steps_per_epoch = self.hparams.train_size // self.hparams.batch_size
-        num_warmup_steps = self.hparams.warmup_epoch * steps_per_epoch
-        num_training_steps = steps_per_epoch * self.trainer.max_epochs
-        scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps, num_training_steps)
-        return (
-            [optimizer],
-            [
-                {
-                    "scheduler": scheduler,
-                    "interval": "step",
-                    "frequency": 1,
-                }
-            ],
-        )
+        optimizer = optim.Adam(self.model.parameters(), lr=self.hparams.lr, weight_decay=self.hparams.weight_decay)
+        return optimizer

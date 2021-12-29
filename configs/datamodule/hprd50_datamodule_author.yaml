@@ -1,0 +1,6 @@
+_target_: src.datamodules.graph_node_classification_by_orig_format_datamodule.GraphNodeClassificationByOrigFormatDataModule
+data_dir: ${data_dir}/hprd50_from_author/ # data_dir is specified in config.yaml
+k: 5
+batch_size: 800
+num_workers: 0
+pin_memory: False

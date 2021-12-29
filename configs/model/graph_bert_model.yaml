@@ -19,10 +19,7 @@ config:
   layer_norm_eps: 1e-12
   is_decoder: False
 
-train_size: 2326
-batch_size: 32
-max_epochs: 50
-lr: 0.00005 # 5e-5
+lr: 0.01 # 1e-2
 warmup_epoch: 5
 eps: 0.00000001 # 1e-8
-weight_decay: 0.01
+weight_decay: 0.0005

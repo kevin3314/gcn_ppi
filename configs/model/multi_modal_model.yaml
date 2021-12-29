@@ -1,7 +1,23 @@
 _target_: src.models.multi_modal_model.MultiModalModule
 config:
   _target_: src.models.modules.graph_bert_layers.GraphBertConfig
-  x_size: 1128
+  residual_type: "none"
+  x_size: 1000
+  y_size: 1
+  k: 5
+  max_wl_role_index: 200
+  max_hop_dis_index: 100
+  max_inti_pos_index: 100
+  hidden_size: 32
+  num_hidden_layers: 2
+  num_attention_heads: 2
+  intermediate_size: 32
+  hidden_act: "gelu"
+  hidden_dropout_prob: 0.5
+  attention_probs_dropout_prob: 0.3
+  initializer_range: 0.02
+  layer_norm_eps: 1e-12
+  is_decoder: False
 amino_vocab_size: 29
 embedding_dim: 128
 num_gnn_layers: 2
