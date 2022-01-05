@@ -57,9 +57,7 @@ def train(config: DictConfig) -> Optional[float]:
 
     # Init lightning trainer
     log.info(f"Instantiating trainer <{config.trainer._target_}>")
-    trainer: Trainer = hydra.utils.instantiate(
-        config.trainer, callbacks=callbacks, logger=logger, _convert_="partial"
-    )
+    trainer: Trainer = hydra.utils.instantiate(config.trainer, callbacks=callbacks, logger=logger, _convert_="partial")
 
     # Send some parameters from config to all lightning loggers
     log.info("Logging hyperparameters!")
@@ -79,7 +77,7 @@ def train(config: DictConfig) -> Optional[float]:
     # Evaluate model on test set, using the best model achieved during training
     if config.get("test_after_training") and not config.trainer.get("fast_dev_run"):
         log.info("Starting testing!")
-        trainer.test()
+        trainer.test(ckpt_path=trainer.checkpoint_callback.best_model_path)
 
     # Make sure everything closed properly
     log.info("Finalizing!")
