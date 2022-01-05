@@ -21,7 +21,7 @@ config:
 
 train_size: 2326
 batch_size: 32
-max_epochs: 50
+max_epochs: 20
 lr: 0.00005 # 5e-5
 warmup_epoch: 5
 eps: 0.00000001 # 1e-8

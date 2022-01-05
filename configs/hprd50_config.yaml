@@ -4,8 +4,8 @@
 defaults:
   - _self_
   - trainer: default.yaml
-  - model: multi_modal_model.yaml
-  - datamodule: hprd50_datamodule.yaml
+  - model: biobert_classifier.yaml
+  - datamodule: hprd50.yaml
   - callbacks: default.yaml
   - logger: tensorboard # set logger here or use command line (e.g. `python run.py logger=wandb`)
 
