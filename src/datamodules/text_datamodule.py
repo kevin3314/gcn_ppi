@@ -3,19 +3,20 @@ from typing import Optional, Union
 
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
-from transformers.tokenization_utils_base import PreTrainedTokenizerBase
+from transformers import AutoTokenizer
 
 from src.datamodules.datasets.text_dataset import TextDataset
 
 
-class GraphNodeClassificationDataModule(LightningDataModule):
+class TextDatasetModule(LightningDataModule):
     def __init__(
         self,
         data_dir: Union[str, Path],
-        tokenizer: PreTrainedTokenizerBase,
+        pretrained_path: str,
         batch_size: int = 32,
         num_workers: int = 0,
         pin_memory: bool = False,
+        max_seq_len: int = 256,
         **kwargs,
     ):
         """
@@ -29,10 +30,11 @@ class GraphNodeClassificationDataModule(LightningDataModule):
         super().__init__()
 
         self.data_dir = Path(data_dir)
-        self.tokenizer = tokenizer
+        self.tokenizer = AutoTokenizer.from_pretrained(pretrained_path)
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.pin_memory = pin_memory
+        self.max_seq_len = max_seq_len
 
         self.train_ds: Optional[Dataset] = None
         self.valid_ds: Optional[Dataset] = None
@@ -40,9 +42,9 @@ class GraphNodeClassificationDataModule(LightningDataModule):
 
     def setup(self, stage: Optional[str] = None):
         """Load data"""
-        self.train_ds = TextDataset(self.data_dir / "train.csv", self.tokenizer)
-        self.valid_ds = TextDataset(self.data_dir / "valid.csv", self.tokenizer)
-        self.test_ds = TextDataset(self.data_dir / "test.csv", self.tokenizer)
+        self.train_ds = TextDataset(self.data_dir / "train.csv", self.tokenizer, max_seq_len=self.max_seq_len)
+        self.valid_ds = TextDataset(self.data_dir / "valid.csv", self.tokenizer, max_seq_len=self.max_seq_len)
+        self.test_ds = TextDataset(self.data_dir / "test.csv", self.tokenizer, max_seq_len=self.max_seq_len)
 
     def train_dataloader(self):
         return DataLoader(
