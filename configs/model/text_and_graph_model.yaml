@@ -1,4 +1,4 @@
-_target_: src.models.multi_modal_with_bert_model.MultiModalWithBertModule
+_target_: src.models.text_and_graph_model.TextAndGraphModule
 amino_vocab_size: 29
 node_dim: 128
 num_gnn_layers: 2

@@ -7,20 +7,19 @@ from pytorch_lightning import LightningModule
 from torchmetrics import F1, Precision, Recall
 from transformers import AdamW, get_linear_schedule_with_warmup
 
-from src.models.modules.graph_bert_layers import GraphBertConfig
-from src.models.modules.mm_model import MultiModalModel
+from src.models.modules.text_and_graph_module import TextAndGraphModel
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class MultiModalModule(LightningModule):
+class TextAndGraphModule(LightningModule):
     def __init__(
         self,
-        config: GraphBertConfig,
         amino_vocab_size: int,
-        embedding_dim: int,
+        node_dim: int,
         num_gnn_layers: int,
+        pretrained_path: str = "dmis-lab/biobert-v1.1",
         train_size: int = 358020,
         batch_size: int = 32,
         max_epochs: int = 50,
@@ -32,7 +31,7 @@ class MultiModalModule(LightningModule):
         super().__init__()
         self.save_hyperparameters()
 
-        self.model: MultiModalModel = MultiModalModel(config, amino_vocab_size, embedding_dim, num_gnn_layers)
+        self.model: TextAndGraphModel = TextAndGraphModel(amino_vocab_size, node_dim, num_gnn_layers, pretrained_path)
         self.criterion = torch.nn.BCEWithLogitsLoss()
 
         # use separate metric instance for train, val and test step
@@ -48,23 +47,13 @@ class MultiModalModule(LightningModule):
         self.test_f1 = F1()
 
     def forward(
-        self,
-        raw_features: torch.Tensor,  # (batch_size, k, num_features)
-        amino_acids_graph_data0,
-        amino_acids_graph_data1,
-        role_ids: torch.Tensor,  # (batch_size, k)
-        position_ids: torch.Tensor,  # (batch_size, k)
-        hop_ids: torch.Tensor,  # (batch_size, k)
+        self, input_ids: torch.Tensor, token_type_ids: torch.Tensor, attention_mask: torch.Tensor, data0, data1
     ):
-        return self.model(
-            raw_features, amino_acids_graph_data0, amino_acids_graph_data1, role_ids, position_ids, hop_ids
-        )
+        return self.model(input_ids, token_type_ids, attention_mask, data0, data1)
 
     def step(self, batch: Any):
-        raw_features, amino_acids_graph_data0, amino_acids_graph_data1, role_ids, position_ids, hop_ids, labels = batch
-        logits = self.forward(
-            raw_features, amino_acids_graph_data0, amino_acids_graph_data1, role_ids, position_ids, hop_ids
-        )
+        input_ids, token_type_ids, attention_mask, data0, data1, labels = batch
+        logits = self.forward(input_ids, token_type_ids, attention_mask, data0, data1)
         loss = self.criterion(logits, labels.float())
         preds = F.sigmoid(logits)
         # preds = torch.argmax(logits, dim=1)
@@ -72,16 +61,7 @@ class MultiModalModule(LightningModule):
 
     def training_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.step(batch)
-
-        # log train metrics
-        prec = self.train_prec(preds, targets.long())
-        rec = self.train_rec(preds, targets.long())
-        f1 = self.train_f1(preds, targets.long())
-
-        self.log("train/loss", loss, on_step=True, on_epoch=True, prog_bar=False)
-        self.log("train/prec", prec, on_step=False, on_epoch=True, prog_bar=True)
-        self.log("train/rec", rec, on_step=False, on_epoch=True, prog_bar=True)
-        self.log("train/f1", f1, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("train/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
 
         # we can return here dict with any tensors
         # and then read it in some callback or in training_epoch_end() below
@@ -89,45 +69,62 @@ class MultiModalModule(LightningModule):
         return {"loss": loss, "preds": preds, "targets": targets}
 
     def training_epoch_end(self, outputs: List[Any]):
+        preds = torch.cat([x["preds"] for x in outputs], dim=0)
+        targets = torch.cat([x["targets"] for x in outputs], dim=0)
+
         # `outputs` is a list of dicts returned from `training_step()`
-        pass
+        self.train_prec(preds, targets.long())
+        prec = self.train_prec.compute()
+        self.train_rec(preds, targets.long())
+        rec = self.train_rec.compute()
+        self.train_f1(preds, targets.long())
+        f1 = self.train_f1.compute()
+        # log train metrics
+        self.log("train/prec", prec, prog_bar=True)
+        self.log("train/rec", rec, prog_bar=True)
+        self.log("train/f1", f1, prog_bar=True)
 
     def validation_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.step(batch)
-
-        # log val metrics
-        prec = self.val_prec(preds, targets.long())
-        rec = self.val_rec(preds, targets.long())
-        f1 = self.val_f1(preds, targets.long())
-
-        # log val metrics
         self.log("val/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
-        self.log("val/prec", prec, on_step=False, on_epoch=True, prog_bar=True)
-        self.log("val/rec", rec, on_step=False, on_epoch=True, prog_bar=True)
-        self.log("val/f1", f1, on_step=False, on_epoch=True, prog_bar=True)
 
         return {"loss": loss, "preds": preds, "targets": targets}
 
     def validation_epoch_end(self, outputs: List[Any]):
-        pass
+        preds = torch.cat([x["preds"] for x in outputs], dim=0)
+        targets = torch.cat([x["targets"] for x in outputs], dim=0)
+
+        self.val_prec(preds, targets.long())
+        prec = self.val_prec.compute()
+        self.val_rec(preds, targets.long())
+        rec = self.val_rec.compute()
+        self.val_f1(preds, targets.long())
+        f1 = self.val_f1.compute()
+        # log val metrics
+        self.log("val/prec", prec, prog_bar=True)
+        self.log("val/rec", rec, prog_bar=True)
+        self.log("val/f1", f1, prog_bar=True)
 
     def test_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.step(batch)
-
-        # log test metrics
-        prec = self.test_prec(preds, targets.long())
-        rec = self.test_rec(preds, targets.long())
-        f1 = self.test_f1(preds, targets.long())
-
         self.log("test/loss", loss, on_step=False, on_epoch=True)
-        self.log("test/prec", prec, on_step=False, on_epoch=True, prog_bar=True)
-        self.log("test/rec", rec, on_step=False, on_epoch=True, prog_bar=True)
-        self.log("test/f1", f1, on_step=False, on_epoch=True, prog_bar=True)
 
         return {"loss": loss, "preds": preds, "targets": targets}
 
     def test_epoch_end(self, outputs: List[Any]):
-        pass
+        preds = torch.cat([x["preds"] for x in outputs], dim=0)
+        targets = torch.cat([x["targets"] for x in outputs], dim=0)
+
+        self.test_prec(preds, targets.long())
+        prec = self.test_prec.compute()
+        self.test_rec(preds, targets.long())
+        rec = self.test_rec.compute()
+        self.test_f1(preds, targets.long())
+        f1 = self.test_f1.compute()
+        # log test metrics
+        self.log("test/prec", prec)
+        self.log("test/rec", rec)
+        self.log("test/f1", f1)
 
     def configure_optimizers(self):
         trainable_named_params = filter(lambda x: x[1].requires_grad, self.model.named_parameters())

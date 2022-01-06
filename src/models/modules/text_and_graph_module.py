@@ -9,13 +9,13 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class MultiModalBertModel(torch.nn.Module):
+class TextAndGraphModel(torch.nn.Module):
     """Multimodal model of text and graph.
     Text module is BioBERT and graph module is graph neural network.
     """
 
     def __init__(self, amino_vocab_size: int, node_dim: int, num_gnn_layers: int, pretrained="dmis-lab/biobert-v1.1"):
-        super(MultiModalBertModel, self).__init__()
+        super(TextAndGraphModel, self).__init__()
         self.encoder = AutoModel.from_pretrained(pretrained)
         hidden_size = self.encoder.config.hidden_size
         self.gnn = GNNForProtein(amino_vocab_size, node_dim, num_gnn_layers)
