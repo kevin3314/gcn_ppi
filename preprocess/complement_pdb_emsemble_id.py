@@ -12,6 +12,7 @@ def main(args):
     genenames0 = df["GENE_NAME0"]
     genenames1 = df["GENE_NAME1"]
 
+    # Fetch pdb ids
     pdb_ids0 = []
     pdb_ids1 = []
     for genename0 in genenames0:
@@ -40,8 +41,35 @@ def main(args):
         except (KeyError, TypeError):
             pdb_ids1.append(None)
 
+    # Fetch ensemble ids
+    ensemble_ids0 = []
+    ensemble_ids1 = []
+    for genename0 in genenames0:
+        try:
+            ensemble_id = mapping[genename0]["emsebl_id"]
+            if ensemble_id is None:
+                ensemble_ids0.append(None)
+                continue
+            assert type(ensemble_id) == str, f"{type(ensemble_id)} is not str"
+            ensemble_ids0.append(ensemble_id)
+        except (KeyError, TypeError):
+            ensemble_ids0.append(None)
+
+    for genename1 in genenames1:
+        try:
+            ensemble_id = mapping[genename1]["emsebl_id"]
+            if ensemble_id is None:
+                ensemble_ids1.append(None)
+                continue
+            assert type(ensemble_id) == str
+            ensemble_ids1.append(ensemble_id)
+        except (KeyError, TypeError):
+            ensemble_ids1.append(None)
+
     df["PDB_ID0"] = pdb_ids0
     df["PDB_ID1"] = pdb_ids1
+    df["ENSEMBLE_ID0"] = ensemble_ids0
+    df["ENSEMBLE_ID1"] = ensemble_ids1
     df.to_csv(args.dst_csv, index=False)
 
 
