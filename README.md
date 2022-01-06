@@ -17,12 +17,12 @@ Main differences is that our model for protein structural modality process over 
 
 
 ## Results
-We list only the result of the HPRD50 dataset because the BioInfer dataset, annotated with gene names, distributed [here](https://github.com/duttaprat/MM_PPI_NLP) is broken.
+We list the F1 scores of each models in the following table.
 
-| Model | HPRD50 |
-| :--- | ---: |
-| Text only | - |
-| Text + Protein graph | - |
+| Model | HPRD50 | BioInfer |
+| :--- | ---: |---: |
+| Text only | 80.0 | 69.0 |
+| Text + Protein graph | 92.3 | - |
 
 ## Requirements
 Dependency is maintained by poetry. Some dependencies (ones related to pytorch-geometric), however, can not be installed via poetry and need to be installed manually.
