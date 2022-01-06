@@ -12,12 +12,9 @@ def main(args: argparse.Namespace):
     df: DataFrame = pd.read_csv(args.csv_path)
     train_ratio = args.ratio[0]
     val_ratio = args.ratio[0] + args.ratio[1]
-    train = df[: int(len(df) * train_ratio)]
-    validate = df[int(len(df) * train_ratio) : int(len(df) * val_ratio)]
-    test = df[int(len(df) * val_ratio) :]
-    # train, validate, test = np.split(
-    #     df.sample(frac=1, random_state=42), [int(train_ratio * len(df)), int(val_ratio * len(df))]
-    # )
+    train, validate, test = np.split(
+        df.sample(frac=1, random_state=42), [int(train_ratio * len(df)), int(val_ratio * len(df))]
+    )
     res_paths: List[Path] = [args.res_dir / f"{split}.csv" for split in ("train", "valid", "test")]
     for _df, res_path in zip([train, validate, test], res_paths):
         print(f"Save to {res_path}")
