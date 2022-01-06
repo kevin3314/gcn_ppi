@@ -28,3 +28,6 @@ class TextAndGraphDataset(Dataset, TextMixin, GraphDataMixin, LabelMixin):
             self.amino_acids_graph_list1[index],
             self.labels[index],
         )
+
+    def __len__(self) -> int:
+        return len(self.input_ids)
