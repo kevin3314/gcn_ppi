@@ -8,12 +8,13 @@ from pandas.core.frame import DataFrame
 
 
 def main(args: argparse.Namespace):
-    np.random.seed(42)
+    SEED = 42
+    np.random.seed(SEED)
     df: DataFrame = pd.read_csv(args.csv_path)
     train_ratio = args.ratio[0]
     val_ratio = args.ratio[0] + args.ratio[1]
     train, validate, test = np.split(
-        df.sample(frac=1, random_state=42), [int(train_ratio * len(df)), int(val_ratio * len(df))]
+        df.sample(frac=1, random_state=SEED), [int(train_ratio * len(df)), int(val_ratio * len(df))]
     )
     res_paths: List[Path] = [args.res_dir / f"{split}.csv" for split in ("train", "valid", "test")]
     for _df, res_path in zip([train, validate, test], res_paths):
