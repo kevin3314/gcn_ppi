@@ -35,9 +35,9 @@ class TextMixin:
         texts = df["text"].values
         pad_token_id = tokenizer.pad_token_id
 
-        input_ids = []
-        token_type_ids = []
-        attention_mask = []
+        self.input_ids = []
+        self.token_type_ids = []
+        self.attention_mask = []
         exceeded_samples = 0
 
         # Tokenize
@@ -55,15 +55,11 @@ class TextMixin:
                 input_ids.append(pad_token_id)
                 token_type_ids.append(0)
                 attention_mask.append(0)
-            input_ids.append(torch.Tensor(input_ids).long())
-            token_type_ids.append(torch.Tensor(token_type_ids).long())
-            attention_mask.append(torch.Tensor(attention_mask).long())
+            self.input_ids.append(torch.Tensor(input_ids).long())
+            self.token_type_ids.append(torch.Tensor(token_type_ids).long())
+            self.attention_mask.append(torch.Tensor(attention_mask).long())
 
         logger.info(f"Found {exceeded_samples} samples exceeding max sequence length of {max_seq_len} in {csv_path}")
-
-        self.input_ids = input_ids
-        self.token_type_ids = token_type_ids
-        self.attention_mask = attention_mask
 
 
 class FeatureMixin:
