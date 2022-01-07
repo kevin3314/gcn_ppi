@@ -9,9 +9,9 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class GNNForProtein(torch.nn.Module):
+class GraphModalityModel(torch.nn.Module):
     def __init__(self, vocab_size, embedding_dim, num_gnn_layers=2):
-        super(GNNForProtein, self).__init__()
+        super(GraphModalityModel, self).__init__()
         self.embedding = torch.nn.Embedding(num_embeddings=vocab_size + 1, embedding_dim=embedding_dim)
         self.gnn_layers = torch.nn.ModuleList(
             [torch_geometric.nn.GCNConv(embedding_dim, embedding_dim) for _ in range(num_gnn_layers)]

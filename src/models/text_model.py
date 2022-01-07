@@ -7,13 +7,13 @@ from pytorch_lightning import LightningModule
 from torchmetrics import F1, Precision, Recall
 from transformers import AdamW, get_linear_schedule_with_warmup
 
-from src.models.modules.biobert_classifier import BioBERTClassifier
+from src.models.modules.text_module import TextModel
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class BioBERTClassifierModule(LightningModule):
+class TextModule(LightningModule):
     """This module works only with text modality."""
 
     def __init__(
@@ -32,7 +32,7 @@ class BioBERTClassifierModule(LightningModule):
         self.save_hyperparameters()
 
         assert type(with_lstm) is bool
-        self.model: BioBERTClassifier = BioBERTClassifier(pretrained_path, with_lstm)
+        self.model: TextModel = TextModel(pretrained_path, with_lstm)
         self.criterion = torch.nn.BCEWithLogitsLoss()
 
         # use separate metric instance for train, val and test step
