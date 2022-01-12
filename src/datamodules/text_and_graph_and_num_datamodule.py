@@ -7,7 +7,7 @@ from src.datamodules.datasets.text_and_graph_and_num_dataset import TextAndGraph
 from src.datamodules.text_datamodule import TextDatasetModule
 
 
-class TextAndGraphModule(TextDatasetModule):
+class TextAndGraphAndNumModule(TextDatasetModule):
     def __init__(
         self,
         data_dir: Union[str, Path],

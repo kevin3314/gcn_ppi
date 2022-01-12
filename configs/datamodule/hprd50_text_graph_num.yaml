@@ -1,0 +1,9 @@
+_target_: src.datamodules.text_and_graph_and_num_datamodule.TextAndGraphAndNumModule
+data_dir: ${data_dir}/hprd50 # data_dir is specified in config.yaml
+pdb_processed_root: ${data_dir}/pdb_processed
+feature_tsv_path: ${data_dir}/emsemble2feature/gene_feature_TCGA_v1.tsv
+batch_size: 16
+pretrained_path: dmis-lab/biobert-v1.1
+num_workers: 0
+pin_memory: False
+max_seq_len: 256

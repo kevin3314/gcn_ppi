@@ -62,7 +62,7 @@ class TextMixin:
         logger.info(f"Found {exceeded_samples} samples exceeding max sequence length of {max_seq_len} in {csv_path}")
 
 
-class FeatureMixin:
+class NumFeatureMixin:
     def load_numerical_features(self, csv_path: Union[str, Path], tsv_path: Union[str, Path]):
         """Load numerical features from given tsv file.
         Suppose the csv file has the following format:
@@ -77,7 +77,7 @@ class FeatureMixin:
         numerical_df[0] = numerical_df[0].map(lambda x: x.replace("ENSEMBL:", ""))
         emsembl_id2features = {}
         for _, row in numerical_df.iterrows():
-            emsembl_id2features[row[0]] = torch.from_numpy(row[1:].values().astype(np.float32))
+            emsembl_id2features[row[0]] = torch.from_numpy(row[1:].values.astype(np.float32))
         # Dummy feature in case of missing features
         NULL_FEATURE = torch.zeros_like(emsembl_id2features[list(emsembl_id2features.keys())[0]])
 
