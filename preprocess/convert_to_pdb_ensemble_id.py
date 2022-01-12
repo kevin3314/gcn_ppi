@@ -32,8 +32,8 @@ def main(args: argparse.Namespace):
             emsebl_part = emsebl_part[0]
 
         if isinstance(emsebl_part, dict):
-            emsebl_id = emsebl_part.get("protein", None)
-            emsebl_id = emsebl_id[0] if emsebl_id is not None else None
+            emsebl_id = emsebl_part.get("gene", None)
+            emsebl_id = emsebl_id if emsebl_id is not None else None
         else:
             assert emsebl_part is None
         pdb_id = d.get("pdb", None)
