@@ -135,10 +135,7 @@ class GraphDataMixin:
             for pdb_id in pdb_ids1
         ]
 
-        missing_num = sum([(x == NULL_ADJ).toarray().all() for x in res0]) + sum(
-            [(x == NULL_ADJ).toarray().all() for x in res1]
-        )
-        return res0, res1, missing_num
+        missing_num = sum([(x == NULL_ADJ) for x in res0]) + sum([(x == NULL_ADJ) for x in res1])
         return res0, res1, missing_num
 
     def load_pdb_data(self, csv_path: Union[str, Path], pdb_processed_root: Union[str, Path]) -> Tuple[List[Data], ...]:

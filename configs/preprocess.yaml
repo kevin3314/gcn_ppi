@@ -12,7 +12,7 @@ train_path: ${data_dir}/hprd50/train.csv
 valid_path: ${data_dir}/hprd50/valid.csv
 test_path: ${data_dir}/hprd50/test.csv
 pdb_root: ${data_dir}/pdb
-res_root: ${data_dir}/processed_pdb
+res_root: ${data_dir}/pdb_processed
 threshold: 8
 
 # pretty print config at the start of the run using Rich library
