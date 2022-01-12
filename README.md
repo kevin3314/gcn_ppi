@@ -12,7 +12,7 @@
 ## Description
 Predict protein-protein interaction (PPI) utilizing multi-modality, including text, molecular structure (*Graph*), and numerical feature.
 Transformer-based models and graph neural networks are dedicated for text and graph, respectively.\
-This repo's core idea comes from [Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction](https://aclanthology.org/2021.findings-acl.328/).\
+Core idea comes from [Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction](https://aclanthology.org/2021.findings-acl.328/).\
 Our's differs in that our model for protein structural modality process over residues rather than atoms.
 
 
@@ -55,6 +55,7 @@ $ pip install torch-geometric
 7. Split csv by `preprocess/split_csv.py`
 8. Preprocess on pdb files (e.g. building adjacency matrix) by `preprocess.py`.
     - Set configuration on `configs/preprocess.yaml`.
+9. (Optional) Normalize numerical feature by `preprocess/normalize_numerical.py`
 
 ```console
 $ python preprocess/list_gene_names.py data/mm_data/HPRD50_multimodal_dataset.csv  data/mm_data/hprd50_gene_name.txt
@@ -63,6 +64,7 @@ $ python preprocess/fetch_pdb_by_id.py data/mm_data/genename2emsembl_pdb.json da
 $ python preprocess/complement_pdb_id.py data/mm_data/HPRD50_multimodal_dataset.csv data/mm_data/HPRD50_multimodal_dataset_with_pdb.csv data/mm_data/genename2emsebl_pdb.json
 $ python preprocess/split_csv.py data/mm_data/HPRD50_multimodal_dataset.csv 0.8,0.1,0.1 data/hprd50
 $ python preprocess_pdb.py
+$ python preprocess/normalize_numerical.py data/emsemble2feature/gene_numerical.tsv data/emsemble2feature/normalized_gene_numerical.tsv  # Optional
 ```
 
 ## How to run
