@@ -10,9 +10,10 @@
 </div>
 
 ## Description
-Predict protein-protein interaction (PPI) by GNN tailored to text modality and protein structural modality.\
-This repo's core idea is similar to [Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction](https://aclanthology.org/2021.findings-acl.328/).\
-Main differences is that our model for protein structural modality process over residues rather than atoms.
+Predict protein-protein interaction (PPI) utilizing multi-modality, including text, molecular structure (*Graph*), and numerical feature.
+Transformer-based models and graph neural networks are dedicated for text and graph, respectively.\
+This repo's core idea comes from [Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction](https://aclanthology.org/2021.findings-acl.328/).\
+Our's differs in that our model for protein structural modality process over residues rather than atoms.
 
 
 
@@ -21,8 +22,17 @@ We list the F1 scores of each models in the following table.
 
 | Model | HPRD50 | BioInfer |
 | :--- | ---: |---: |
+| Dutta et al. [1] Text | 71.17 | 67.09 |
+| Dutta et al. [1] Text & Graph| 83.87 | 77.54 |
+| Pingali et al. [2] &dagger; | 95.06 | 80.86 |
 | Text only | 80.0 | 69.0 |
 | Text + Protein graph | 92.3 | - |
+| Text + Protein graph + Numerical feature | 77.8 | - |
+
+&dagger;: The evaluation metrics in the author's implementation seem broken, though. Their text modality model is too simple yet has beaten previous models, including strong pretrained model-based, Bio-BERT-based one.
+
+> [1]: Pratik Dutta and Sriparna Saha, Amalgamation of protein sequence, structure and textual information for improving protein-protein interaction identification, In Proceedings of the 58th Annual Meet- ing of the Association for Computational Linguistics\
+> [2] Sriram Pingali, Shweta Yadav, Pratik Dutta and Sriparna Saha, Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction, Findings of the Association for Computational Linguistics: ACL-IJCNLP
 
 ## Requirements
 Dependency is maintained by poetry. Some dependencies (ones related to pytorch-geometric), however, can not be installed via poetry and need to be installed manually.

@@ -29,7 +29,7 @@ if __name__ == "__main__":
         "ratio",
         type=lambda x: list(map(float, x.split(","))),
         default="0.8,0.1,0.1",
-        help="Split ratio separeted by , (e.g. 0.9,0.05,0.05)",
+        help="Split ratio separeted by , (e.g. 0.8,0.1,0.1)",
     )
     parser.add_argument("res_dir", type=Path, help="Path to directory in which save result")
     args = parser.parse_args()
