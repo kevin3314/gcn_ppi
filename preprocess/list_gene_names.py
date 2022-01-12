@@ -20,3 +20,4 @@ if __name__ == "__main__":
     parser.add_argument("csv_path", type=Path, help="Path to csv file to load.")
     parser.add_argument("dst_path", type=Path, help="Path to write result text file.")
     args = parser.parse_args()
+    main(args)
