@@ -18,18 +18,18 @@ Our's differs in that our model for protein structural modality process over res
 
 
 ## Results
-We list the F1 scores of each models in the following table.
+We list the Precision/Recall/F1 scores of each models in the following table.
 
 | Model | HPRD50 | BioInfer |
 | :--- | ---: |---: |
-| Dutta et al. [1] Text | 71.17 | 67.09 |
-| Dutta et al. [1] Text & Graph| 83.87 | 77.54 |
-| Pingali et al. [2] &dagger; | 95.06 | 80.86 |
-| Text only | 80.0 | 69.0 |
-| Text + Protein graph | 92.3 | - |
-| Text + Protein graph + Numerical feature | 77.8 | - |
+| Dutta et al. [1] Text | 90.44/58.67/71.17 | 54.42/87.45/67.09 |
+| Dutta et al. [1] Text & Graph| 94.79/75.21/83.87 | 69.04/88.49/77.54 |
+| Pingali et al. [2] &dagger; | 95.47/94.69/95.06 | 78.49/79.78/80.86 |
+| Text only | 75.0/85.7/80.0 | 74.0/64.7/69.0 |
+| Text + Protein graph | **100.0**/**85.7**/**92.3** | TBW |
+| Text + Protein graph + Numerical feature | 80.0/60.0/68.6 | TBW |
 
-&dagger;: The evaluation metrics in the author's implementation seem broken, though. Their text modality model is too simple yet has beaten previous models, including strong pretrained model-based, Bio-BERT-based one.
+&dagger;: The evaluation metrics in the author's implementation seem broken, though. Their text modality model is too simple yet has beaten previous models, including strong pretrained model-based, Bio-BERT-based one. Moreover, we found bugs in their implementation of metrics.
 
 > [1]: Pratik Dutta and Sriparna Saha, Amalgamation of protein sequence, structure and textual information for improving protein-protein interaction identification, In Proceedings of the 58th Annual Meet- ing of the Association for Computational Linguistics\
 > [2] Sriram Pingali, Shweta Yadav, Pratik Dutta and Sriparna Saha, Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction, Findings of the Association for Computational Linguistics: ACL-IJCNLP
