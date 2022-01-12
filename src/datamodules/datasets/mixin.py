@@ -90,6 +90,15 @@ class NumFeatureMixin:
         numerical_features1: List[torch.Tensor] = [
             emsembl_id2features.get(emsembl_id, NULL_FEATURE) for emsembl_id in emsembl_ids1
         ]
+
+        missing_num = sum([(x == NULL_FEATURE).all() for x in numerical_features0]) + sum(
+            [(x == NULL_FEATURE).all() for x in numerical_features1]
+        )
+        logger.info(
+            "# of genes missing numerical feature: {} out of {}".format(
+                missing_num, len(numerical_features0) + len(numerical_features1)
+            )
+        )
         self.numerical_features0 = numerical_features0
         self.numerical_features1 = numerical_features1
 
@@ -109,7 +118,11 @@ class GraphDataMixin:
             else NULL_EMBEDDING
             for pdb_id in pdb_ids1
         ]
-        return res0, res1
+
+        missing_num = sum([(x == NULL_EMBEDDING).all() for x in res0]) + sum(
+            [(x == NULL_EMBEDDING).all() for x in res1]
+        )
+        return res0, res1, missing_num
 
     @staticmethod
     def get_adj_matrix(pdb_ids0: List[str], pdb_ids1: List[str], pdb_root: Path) -> Tuple[List[coo_matrix], ...]:
@@ -121,20 +134,34 @@ class GraphDataMixin:
             load_npz(pdb_root / f"{pdb_id}_adj.npz") if (pdb_root / f"{pdb_id}_adj.npz").exists() else NULL_ADJ
             for pdb_id in pdb_ids1
         ]
-        return res0, res1
+
+        missing_num = sum([(x == NULL_ADJ).toarray().all() for x in res0]) + sum(
+            [(x == NULL_ADJ).toarray().all() for x in res1]
+        )
+        return res0, res1, missing_num
+        return res0, res1, missing_num
 
     def load_pdb_data(self, csv_path: Union[str, Path], pdb_processed_root: Union[str, Path]) -> Tuple[List[Data], ...]:
         logger.info("Loading graph feature from {}".format(pdb_processed_root))
         csv_path = Path(csv_path)
         df = pd.read_csv(csv_path)
-        amino_acids_list0, amino_acids_list1 = GraphDataMixin.get_pdb_nodes(
+        amino_acids_list0, amino_acids_list1, missing_nodes = GraphDataMixin.get_pdb_nodes(
             df["PDB_ID0"].values, df["PDB_ID1"], pdb_processed_root
         )
-        amino_acids_adj_list0, amino_acids_adj_list1 = GraphDataMixin.get_adj_matrix(
+        amino_acids_adj_list0, amino_acids_adj_list1, missing_adjs = GraphDataMixin.get_adj_matrix(
             df["PDB_ID0"].values, df["PDB_ID1"], pdb_processed_root
         )
         amino_acids_edges0: List[torch.Tensor] = [from_scipy_sparse_matrix(adj)[0] for adj in amino_acids_adj_list0]
         amino_acids_edges1: List[torch.Tensor] = [from_scipy_sparse_matrix(adj)[0] for adj in amino_acids_adj_list1]
+
+        logger.info(
+            "# of missing nodes: {} out of {}".format(missing_nodes, len(amino_acids_list0) + len(amino_acids_list1))
+        )
+        logger.info(
+            "# of missing adjs: {} out of {}".format(
+                missing_adjs, len(amino_acids_adj_list0) + len(amino_acids_adj_list1)
+            )
+        )
 
         amino_acids_graph_list0 = [
             Data(amino_acids_node, amino_acids_edge)
