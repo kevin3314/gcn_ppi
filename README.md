@@ -1,6 +1,6 @@
 <div align="center">
 
-# Protein-protein Interaction Prediction by GNN
+# Protein-protein Interaction Prediction Utilizing Multi-modal Information
 
 <a href="https://pytorch.org/get-started/locally/"><img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-ee4c2c?logo=pytorch&logoColor=white"></a>
 <a href="https://pytorchlightning.ai/"><img alt="Lightning" src="https://img.shields.io/badge/-Lightning-792ee5?logo=pytorchlightning&logoColor=white"></a>
@@ -14,6 +14,8 @@ Predict protein-protein interaction (PPI) utilizing multi-modality, including te
 Transformer-based models and graph neural networks are dedicated for text and graph, respectively.\
 Core idea comes from [Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction](https://aclanthology.org/2021.findings-acl.328/).\
 Our's differs in that our model for protein structural modality process over residues rather than atoms.
+
+![Overview](imgs/model.png)
 
 
 
