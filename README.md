@@ -36,23 +36,6 @@ We list the Precision/Recall/F1 scores of each models in the following table.
 > [1]: Pratik Dutta and Sriparna Saha, Amalgamation of protein sequence, structure and textual information for improving protein-protein interaction identification, In Proceedings of the 58th Annual Meet- ing of the Association for Computational Linguistics\
 > [2] Sriram Pingali, Shweta Yadav, Pratik Dutta and Sriparna Saha, Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction, Findings of the Association for Computational Linguistics: ACL-IJCNLP
 
-## Hyper Parameters
-Hyper parameters are listed in model configuration file as well. For more detail, you may refer to it.
-
-| Option | Values|
-| :--- | ---: |
-| Optimizer | AdamW |
-| batch size | 32 |
-| Maximum epochs | 20 |
-| Learning scheduler | Linear scheduler |
-| Learning rate | 5e-5 |
-| Warmup Epoch | 5 |
-| Weight Decay | 0.01 |
-| Node dimension of GNN | 128 |
-| The number of GNN layers | 2 |
-| Dimension of numerical feature | 180 |
-
-
 ## Requirements
 Dependency is maintained by poetry. Some dependencies (ones related to pytorch-geometric), however, can not be installed via poetry and need to be installed manually.
 Please follow [instructions](https://github.com/pyg-team/pytorch_geometric#installation).
@@ -115,5 +98,21 @@ Test with trained model.
 ```yaml
 python test.py load_checkpoint=path/to/checkpoint
 ```
+
+## Hyper Parameters
+Hyper parameters are listed in model configuration file as well. For more detail, you may refer to it.
+
+| Option | Values|
+| :--- | ---: |
+| Optimizer | AdamW |
+| batch size | 32 |
+| Maximum epochs | 20 |
+| Learning scheduler | Linear scheduler |
+| Learning rate | 5e-5 |
+| Warmup Epoch | 5 |
+| Weight Decay | 0.01 |
+| Node dimension of GNN | 128 |
+| The number of GNN layers | 2 |
+| Dimension of numerical feature | 180 |
 
 <br>
