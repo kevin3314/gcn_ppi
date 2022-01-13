@@ -51,7 +51,7 @@ $ pip install torch-geometric
 1. Download PPI data annotated with gene names from [here](https://github.com/duttaprat/MM_PPI_NLP) to data/mm_data.
 2. Convert xlsm file to csv file (suppose `HPRD50_multimodal_dataset.csv`).
 3. List up gene names in `HPRD50_multimodal_dataset.csv` by `preprocess/list_gene_names.py`.
-4. Fetch pdb ids and ensemble ids corresponding to gene names by `preprocess/convert_to_pdb_ensemble_id.py`.
+4. Fetch pdb ids and ensemble ids corresponding to gene names by `preprocess/fetch_pdb_ensemble_id.py`.
 5. Fetch pdb files corresponding to pdb ids by `preprocess/fetch_pdb_by_id.py`.
 6. Complement pdb id by `preprocess/complement_pdb_id.py`.
 7. Split csv by `preprocess/split_csv.py`
@@ -61,7 +61,7 @@ $ pip install torch-geometric
 
 ```console
 $ python preprocess/list_gene_names.py data/mm_data/HPRD50_multimodal_dataset.csv  data/mm_data/hprd50_gene_name.txt
-$ python preprocess/convert_to_pdb_ensemble_id.py data/mm_data/hprd50_gene_name.txt data/mm_data/genename2emsembl_pdb.json
+$ python preprocess/fetch_pdb_ensemble_id.py data/mm_data/hprd50_gene_name.txt data/mm_data/genename2emsembl_pdb.json
 $ python preprocess/fetch_pdb_by_id.py data/mm_data/genename2emsembl_pdb.json data/pdb
 $ python preprocess/complement_pdb_id.py data/mm_data/HPRD50_multimodal_dataset.csv data/mm_data/HPRD50_multimodal_dataset_with_pdb.csv data/mm_data/genename2emsebl_pdb.json
 $ python preprocess/split_csv.py data/mm_data/HPRD50_multimodal_dataset.csv 0.8,0.1,0.1 data/hprd50
