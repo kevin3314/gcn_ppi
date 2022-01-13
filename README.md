@@ -37,7 +37,7 @@ We list the Precision/Recall/F1 scores of each models in the following table.
 > [2] Sriram Pingali, Shweta Yadav, Pratik Dutta and Sriparna Saha, Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction, Findings of the Association for Computational Linguistics: ACL-IJCNLP
 
 ## Hyper Parameters
-Hyper parameters are listed in model configuration file as well. For more detail information, please refer to it.
+Hyper parameters are listed in model configuration file as well. For more detail, you may refer to it.
 
 | Option | Values|
 | :--- | ---: |
