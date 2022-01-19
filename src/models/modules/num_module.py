@@ -13,7 +13,7 @@ class NumModel(torch.nn.Module):
 
     def __init__(self, num_feature_dim: int, dropout_prob: float = 0.1):
         super().__init__()
-        self.linear = torch.nn.Linear(num_feature_dim, 1)
+        self.linear = torch.nn.Linear(num_feature_dim * 2, 1)
 
     def forward(self, feauture: torch.Tensor):
         logit = self.linear(feauture)
