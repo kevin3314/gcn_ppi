@@ -28,9 +28,10 @@ We list the Precision/Recall/F1 scores of each models in the following table.
 | Dutta et al. [1] Text & Graph| 94.79/75.21/83.87 | 69.04/88.49/77.54 |
 | Pingali et al. [2] &dagger; | 95.47/94.69/95.06 | 78.49/79.78/80.86 |
 | Text only | 75.0/85.7/80.0 | 74.0/64.7/69.0 |
-| Numerical feature | 8.70/20.0/12.1 | -/-/- |
-| Text + Protein graph | **100.0**/**85.7**/**92.3** | -/-/- |
-| Text + Protein graph + Numerical feature | 80.0/60.0/68.6 | -/-/- |
+| Graph only | 7.80/55.0/13.7 | -/-/- |
+| Numerical only | 8.70/20.0/12.1 | -/-/- |
+| Text + Graph | **100.0**/**85.7**/**92.3** | -/-/- |
+| Text + Graph + Numerical | 80.0/60.0/68.6 | -/-/- |
 
 &dagger;: The evaluation metrics in the author's implementation seem broken, though. Their text modality model is too simple yet has beaten previous models, including strong pretrained model-based, Bio-BERT-based one. Moreover, we found bugs in their implementation of metrics.
 
