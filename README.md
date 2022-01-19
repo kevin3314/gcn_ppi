@@ -15,7 +15,7 @@ Transformer-based models and graph neural networks are dedicated for text and gr
 Core idea comes from [Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction](https://aclanthology.org/2021.findings-acl.328/).\
 Our's differs in that our model for protein structural modality process over residues rather than atoms.
 
-![Overview](imgs/model.png)
+![Overview](imgs/overview.png)
 
 
 
