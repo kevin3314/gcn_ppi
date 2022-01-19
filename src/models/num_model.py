@@ -46,12 +46,12 @@ class NumModule(LightningModule):
         self.test_rec = Recall()
         self.test_f1 = F1()
 
-    def forward(self, feature: torch.Tensor):
-        return self.model(feature)
+    def forward(self, num_feature0: torch.Tensor, num_feature1):
+        return self.model(num_feature0, num_feature1)
 
     def step(self, batch: Any):
-        feature, labels = batch
-        logits = self.forward(feature)
+        num_feature0, num_feature1, labels = batch
+        logits = self.forward(num_feature0, num_feature1)
         loss = self.criterion(logits, labels.float())
         preds = F.sigmoid(logits)
         # preds = torch.argmax(logits, dim=1)

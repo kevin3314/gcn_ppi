@@ -2,7 +2,6 @@ import logging
 from pathlib import Path
 from typing import Union
 
-import torch
 from torch.utils.data import Dataset
 
 from .mixin import LabelMixin, NumFeatureMixin
@@ -17,7 +16,11 @@ class NumDataset(Dataset, NumFeatureMixin, LabelMixin):
         self.load_label(csv_path)
 
     def __getitem__(self, index):
-        return torch.cat([self.numerical_features0[index], self.numerical_features1[index]], dim=-1), self.labels[index]
+        return (
+            self.amino_acids_graph_list0[index],
+            self.amino_acids_graph_list1[index],
+            self.labels[index],
+        )
 
     def __len__(self) -> int:
         return len(self.numerical_features0)

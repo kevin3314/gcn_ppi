@@ -45,12 +45,19 @@ class TextAndNumModule(LightningModule):
         self.test_rec = Recall()
         self.test_f1 = F1()
 
-    def forward(self, input_ids: torch.Tensor, token_type_ids: torch.Tensor, attention_mask: torch.Tensor, num_feature):
-        return self.model(input_ids, token_type_ids, attention_mask, num_feature)
+    def forward(
+        self,
+        input_ids: torch.Tensor,
+        token_type_ids: torch.Tensor,
+        attention_mask: torch.Tensor,
+        num_feature0: torch.Tensor,
+        num_feature1: torch.Tensor,
+    ):
+        return self.model(input_ids, token_type_ids, attention_mask, num_feature0, num_feature1)
 
     def step(self, batch: Any):
-        input_ids, token_type_ids, attention_mask, num_feature, labels = batch
-        logits = self.forward(input_ids, token_type_ids, attention_mask, num_feature)
+        input_ids, token_type_ids, attention_mask, num_feature0, num_feature1, labels = batch
+        logits = self.forward(input_ids, token_type_ids, attention_mask, num_feature0, num_feature1)
         loss = self.criterion(logits, labels.float())
         preds = F.sigmoid(logits)
         # preds = torch.argmax(logits, dim=1)

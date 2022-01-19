@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import Union
 
-import torch
 from torch.utils.data import Dataset
 from transformers.tokenization_utils_base import PreTrainedTokenizerBase
 
@@ -21,12 +20,12 @@ class TextAndNumDataset(Dataset, TextMixin, NumFeatureMixin, LabelMixin):
         self.load_label(csv_path)
 
     def __getitem__(self, index):
-        num_tensor = torch.cat([self.numerical_features0[index], self.numerical_features1[index]])
         return (
             self.input_ids[index],
             self.token_type_ids[index],
             self.attention_mask[index],
-            num_tensor,
+            self.amino_acids_graph_list0[index],
+            self.amino_acids_graph_list1[index],
             self.labels[index],
         )
 

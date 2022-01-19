@@ -33,9 +33,10 @@ class TextAndNumModel(torch.nn.Module):
         input_ids: torch.Tensor,
         token_type_ids: torch.Tensor,
         attention_mask: torch.Tensor,
-        num_feature: torch.Tensor,
+        num_feature0: torch.Tensor,
+        num_feature1: torch.Tensor,
     ):
         text_emb = self.dropout(self.text_model(input_ids, token_type_ids, attention_mask))
-        hidden_state = torch.cat([text_emb, num_feature], dim=-1)  # (b, hid+2*node_dim)
+        hidden_state = torch.cat([text_emb, num_feature0, num_feature1], dim=-1)  # (b, hid+2*node_dim)
         logit = self.linear(self.dropout(hidden_state))
         return torch.squeeze(logit, dim=-1)

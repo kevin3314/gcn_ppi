@@ -1,5 +1,6 @@
 import logging
 
+import torch
 import torch.nn
 
 logger = logging.getLogger(__name__)
@@ -15,6 +16,6 @@ class NumModel(torch.nn.Module):
         super().__init__()
         self.linear = torch.nn.Linear(num_feature_dim * 2, 1)
 
-    def forward(self, feauture: torch.Tensor):
-        logit = self.linear(feauture)
+    def forward(self, num_feature0: torch.Tensor, num_feature1: torch.Tensor):
+        logit = self.linear(torch.cat([num_feature0, num_feature1], dim=-1))
         return torch.squeeze(logit, dim=-1)
