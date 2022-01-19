@@ -1,0 +1,13 @@
+_target_: src.models.graph_and_num_model.GraphAndNumModule
+amino_vocab_size: 29
+node_dim: 128
+num_gnn_layers: 2
+dropout_prob: 0.1
+num_feature_dim: 180
+train_size:
+batch_size: 32
+max_epochs: 20
+lr: 0.00005 # 5e-5
+warmup_epoch: 5
+eps: 0.00000001 # 1e-8
+weight_decay: 0.01

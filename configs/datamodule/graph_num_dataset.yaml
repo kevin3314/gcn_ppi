@@ -1,0 +1,7 @@
+_target_: src.datamodules.graph_and_num_datamodule.GraphAndNumModule
+data_dir:
+pdb_processed_root: ${data_dir}/pdb_processed
+feature_tsv_path: ${data_dir}/emsemble2feature/normalized_gene_feature_TCGA_v1.tsv
+batch_size: 16
+num_workers: 0
+pin_memory: False
