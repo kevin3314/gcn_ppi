@@ -31,6 +31,7 @@ We list the Precision/Recall/F1 scores of each models in the following table.
 | Graph only | 7.80/55.0/13.7 | -/-/- |
 | Numerical only | 8.70/20.0/12.1 | -/-/- |
 | Text + Graph | **100.0**/**85.7**/**92.3** | -/-/- |
+| Text + Numerical | 86.7/65.0/74.3 | -/-/- |
 | Text + Graph + Numerical | 80.0/60.0/68.6 | -/-/- |
 
 &dagger;: The evaluation metrics in the author's implementation seem broken, though. Their text modality model is too simple yet has beaten previous models, including strong pretrained model-based, Bio-BERT-based one. Moreover, we found bugs in their implementation of metrics.
