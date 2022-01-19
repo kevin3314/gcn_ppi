@@ -25,8 +25,11 @@ class GraphDatasetModule(LightningDataModule):
             pin_memory (bool, optional): Defaults to False.
         """
         super().__init__()
-        self.data_dir = data_dir
+        self.data_dir = Path(data_dir)
         self.pdb_processed_root = Path(pdb_processed_root)
+        self.batch_size = batch_size
+        self.num_workers = num_workers
+        self.pin_memory = pin_memory
 
     def setup(self, stage: Optional[str] = None):
         """Load data"""

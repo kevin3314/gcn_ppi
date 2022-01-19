@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class NumModule(LightningModule):
+class GraphModule(LightningModule):
     """This module works only with text modality."""
 
     def __init__(
@@ -21,6 +21,7 @@ class NumModule(LightningModule):
         amino_vocab_size: int,
         node_dim: int,
         num_gnn_layers: int,
+        dropout_prob: float,
         train_size: int = 2326,
         batch_size: int = 32,
         max_epochs: int = 50,
@@ -32,7 +33,7 @@ class NumModule(LightningModule):
         super().__init__()
         self.save_hyperparameters()
 
-        self.model: GraphModel = GraphModel(amino_vocab_size, node_dim, num_gnn_layers)
+        self.model: GraphModel = GraphModel(amino_vocab_size, node_dim, num_gnn_layers, dropout_prob)
         self.criterion = torch.nn.BCEWithLogitsLoss()
 
         # use separate metric instance for train, val and test step

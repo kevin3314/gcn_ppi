@@ -18,11 +18,12 @@ class GraphModel(torch.nn.Module):
         amino_vocab_size: int,
         node_dim: int,
         num_gnn_layers: int,
+        dropout_prob: float,
     ):
         super(GraphModel, self).__init__()
         self.gnn = GraphModalityModel(amino_vocab_size, node_dim, num_gnn_layers)
-        self.linear = torch.nn.Linear(node_dim, 1)
-        self.dropout = torch.nn.Dropout(self.text_model.encoder.config.hidden_dropout_prob)
+        self.linear = torch.nn.Linear(node_dim * 2, 1)
+        self.dropout = torch.nn.Dropout(dropout_prob)
 
     def forward(self, data0, data1):
         node0 = self.gnn(data0.x, data0.edge_index, data0.batch)  # (b, node_dim)
