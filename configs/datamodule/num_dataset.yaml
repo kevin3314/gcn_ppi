@@ -1,5 +1,5 @@
 _target_: src.datamodules.num_datamodule.NumDatasetModule
-data_dir: ${data_dir}/hprd50 # data_dir is specified in config.yaml
+data_dir:
 feature_tsv_path: ${data_dir}/emsemble2feature/normalized_gene_feature_TCGA_v1.tsv
 batch_size: 16
 num_workers: 0

@@ -1,5 +1,5 @@
 _target_: src.datamodules.text_datamodule.TextDatasetModule
-data_dir: ${data_dir}/hprd50 # data_dir is specified in config.yaml
+data_dir:
 batch_size: 16
 pretrained_path: dmis-lab/biobert-v1.1
 num_workers: 0
