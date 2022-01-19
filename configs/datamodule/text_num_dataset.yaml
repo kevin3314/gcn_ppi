@@ -1,0 +1,8 @@
+_target_: src.datamodules.text_and_num_datamodule.TextAndNumModule
+data_dir:
+feature_tsv_path: ${data_dir}/emsemble2feature/normalized_gene_feature_TCGA_v1.tsv
+batch_size: 16
+pretrained_path: dmis-lab/biobert-v1.1
+num_workers: 0
+pin_memory: False
+max_seq_len: 256

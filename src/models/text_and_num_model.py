@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class TextAndGraphModule(LightningModule):
+class TextAndNumModule(LightningModule):
     def __init__(
         self,
         num_feature_dim: int,
