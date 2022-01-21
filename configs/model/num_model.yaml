@@ -1,5 +1,5 @@
 _target_: src.models.num_model.NumModule
-num_feature_dim: 180
+num_feature_dim:
 train_size:
 batch_size: 32
 max_epochs: 20

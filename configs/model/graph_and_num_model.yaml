@@ -3,7 +3,7 @@ amino_vocab_size: 29
 node_dim: 128
 num_gnn_layers: 2
 dropout_prob: 0.1
-num_feature_dim: 180
+num_feature_dim:
 train_size:
 batch_size: 32
 max_epochs: 20

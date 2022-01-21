@@ -17,8 +17,8 @@ class NumDataset(Dataset, NumFeatureMixin, LabelMixin):
 
     def __getitem__(self, index):
         return (
-            self.amino_acids_graph_list0[index],
-            self.amino_acids_graph_list1[index],
+            self.numerical_features0[index],
+            self.numerical_features1[index],
             self.labels[index],
         )
 

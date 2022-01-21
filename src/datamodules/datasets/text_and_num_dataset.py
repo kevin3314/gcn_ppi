@@ -24,8 +24,8 @@ class TextAndNumDataset(Dataset, TextMixin, NumFeatureMixin, LabelMixin):
             self.input_ids[index],
             self.token_type_ids[index],
             self.attention_mask[index],
-            self.amino_acids_graph_list0[index],
-            self.amino_acids_graph_list1[index],
+            self.numerical_features0[index],
+            self.numerical_features1[index],
             self.labels[index],
         )
 

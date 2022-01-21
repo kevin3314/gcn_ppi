@@ -1,5 +1,5 @@
 _target_: src.models.text_and_num_model.TextAndNumModule
-num_feature_dim: 180
+num_feature_dim:
 pretrained_path: dmis-lab/biobert-v1.1
 with_lstm: false
 train_size:
