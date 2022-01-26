@@ -167,10 +167,17 @@ DATASET2FETCH_FUNC = {
     "bioinfer": fetch_result_for_bioinfer,
 }
 
+WARNING_MSG_ON_BIOINFER = """
+WARNING: gene name is not provided in the bioinfer dataset.
+         thus, fetch pdb and ensemble id by protein name instead.
+"""
+
 
 def main(args: argparse.Namespace):
     name_file_path: Path = args.text_path
     res_path: Path = args.res_path
+    if args.dataset == "bioinfer":
+        print(WARNING_MSG_ON_BIOINFER)
     fetch_func = DATASET2FETCH_FUNC[args.dataset]
     extract_func = DATASET2EXTRACT_FUNC[args.dataset]
 
