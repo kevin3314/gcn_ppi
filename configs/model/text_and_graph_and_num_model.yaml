@@ -4,6 +4,8 @@ node_dim: 128
 num_gnn_layers: 2
 num_feature_dim: 180
 pretrained_path: dmis-lab/biobert-v1.1
+with_lstm: false
+with_intermediate_layer: false
 train_size:
 batch_size: 32
 max_epochs: 20

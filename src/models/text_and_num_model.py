@@ -19,6 +19,7 @@ class TextAndNumModule(LightningModule):
         num_feature_dim: int,
         pretrained_path: str = "dmis-lab/biobert-v1.1",
         with_lstm=False,
+        with_intermediate_layer=False,
         train_size: int = 358020,
         batch_size: int = 32,
         max_epochs: int = 50,
@@ -30,7 +31,9 @@ class TextAndNumModule(LightningModule):
         super().__init__()
         self.save_hyperparameters()
 
-        self.model: TextAndNumModel = TextAndNumModel(num_feature_dim, pretrained_path, with_lstm)
+        self.model: TextAndNumModel = TextAndNumModel(
+            num_feature_dim, pretrained_path, with_lstm, with_intermediate_layer
+        )
         self.criterion = torch.nn.BCEWithLogitsLoss()
 
         # use separate metric instance for train, val and test step

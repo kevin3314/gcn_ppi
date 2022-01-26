@@ -22,6 +22,7 @@ class TextAndGraphAndNumModel(torch.nn.Module):
         num_feature_dim: int,
         pretrained="dmis-lab/biobert-v1.1",
         with_lstm=False,
+        with_intermediate_layer=False,
     ):
         super(TextAndGraphAndNumModel, self).__init__()
         self.text_model = TextModalityModel(pretrained, with_lstm)
@@ -29,11 +30,15 @@ class TextAndGraphAndNumModel(torch.nn.Module):
         text_hidden_size = text_hidden_size * (int(with_lstm) + 1)
 
         self.gnn = GraphModalityModel(amino_vocab_size, node_dim, num_gnn_layers)
-        # logger.info("text_hidden_size: {}".format(text_hidden_size))
-        # logger.info("node_dim: {}".format(node_dim))
-        # logger.info("numerical_feature_dim: {}".format(num_feature_dim))
         total_feature_dim = text_hidden_size + node_dim * 2 + num_feature_dim * 2
-        self.linear = torch.nn.Linear(total_feature_dim, 1)
+        if with_intermediate_layer:
+            self.linear = torch.nn.Sequential(
+                torch.nn.Linear(total_feature_dim, total_feature_dim // 2),
+                torch.nn.ReLU(),
+                torch.nn.Linear(total_feature_dim // 2, 1),
+            )
+        else:
+            self.linear = torch.nn.Linear(total_feature_dim, 1)
         self.dropout = torch.nn.Dropout(self.text_model.encoder.config.hidden_dropout_prob)
 
     def forward(
