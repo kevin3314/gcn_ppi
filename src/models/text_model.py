@@ -4,7 +4,7 @@ from typing import Any
 import torch
 import torch.nn.functional as F
 from pytorch_lightning import LightningModule
-from torchmetrics import F1, Precision, Recall
+from torchmetrics import AUROC, F1, Precision, Recall
 
 from src.models.mixin import CommonMixin
 from src.models.modules.text_module import TextModel
@@ -34,12 +34,15 @@ class TextModule(CommonMixin, LightningModule):
         self.train_prec = Precision()
         self.train_rec = Recall()
         self.train_f1 = F1()
+        self.train_auroc = AUROC()
         self.val_prec = Precision()
         self.val_rec = Recall()
         self.val_f1 = F1()
+        self.val_auroc = AUROC()
         self.test_prec = Precision()
         self.test_rec = Recall()
         self.test_f1 = F1()
+        self.test_auroc = AUROC()
 
         assert type(with_lstm) is bool
         self.model: TextModel = TextModel(pretrained_path, with_lstm)

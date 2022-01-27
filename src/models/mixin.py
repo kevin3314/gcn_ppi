@@ -29,10 +29,17 @@ class CommonMixin:
         rec = self.train_rec.compute()
         self.train_f1(preds, targets.long())
         f1 = self.train_f1.compute()
+        try:
+            self.train_auroc(preds, targets.long())
+            auroc = self.train_auroc.compute()
+        # If there is no positive instance
+        except ValueError:
+            auroc = 0
         # log train metrics
         self.log("train/prec", prec, prog_bar=True)
         self.log("train/rec", rec, prog_bar=True)
         self.log("train/f1", f1, prog_bar=True)
+        self.log("train/auroc", auroc, prog_bar=True)
 
     def validation_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.step(batch)
@@ -50,10 +57,17 @@ class CommonMixin:
         rec = self.val_rec.compute()
         self.val_f1(preds, targets.long())
         f1 = self.val_f1.compute()
+        try:
+            self.val_auroc(preds, targets.long())
+            auroc = self.val_auroc.compute()
+        # If there is no positive instance
+        except ValueError:
+            auroc = 0
         # log val metrics
         self.log("val/prec", prec, prog_bar=True)
         self.log("val/rec", rec, prog_bar=True)
         self.log("val/f1", f1, prog_bar=True)
+        self.log("val/auroc", auroc, prog_bar=True)
 
     def test_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.step(batch)
@@ -71,10 +85,17 @@ class CommonMixin:
         rec = self.test_rec.compute()
         self.test_f1(preds, targets.long())
         f1 = self.test_f1.compute()
+        try:
+            self.test_auroc(preds, targets.long())
+            auroc = self.test_auroc.compute()
+        # If there is no positive instance
+        except ValueError:
+            auroc = 0
         # log test metrics
         self.log("test/prec", prec)
         self.log("test/rec", rec)
         self.log("test/f1", f1)
+        self.log("test/auroc", auroc, prog_bar=True)
 
     def configure_optimizers(self):
         trainable_named_params = filter(lambda x: x[1].requires_grad, self.model.named_parameters())
