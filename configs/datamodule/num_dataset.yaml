@@ -1,5 +1,5 @@
 _target_: src.datamodules.num_datamodule.NumDatasetModule
-data_dir:
+csv_path:
 feature_tsv_path:
 batch_size: 16
 num_workers: 0

@@ -1,5 +1,5 @@
 _target_: src.datamodules.text_and_graph_and_num_datamodule.TextAndGraphAndNumModule
-data_dir:
+csv_path:
 pdb_processed_root: ${data_dir}/pdb_processed
 feature_tsv_path: ${data_dir}/emsemble2feature/normalized_gene_feature_TCGA_v1.tsv
 batch_size: 16
