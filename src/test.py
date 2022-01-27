@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Callable, List, Optional, Union
+from typing import List, Optional
 
 import hydra
 from omegaconf import DictConfig
@@ -15,52 +15,6 @@ from pytorch_lightning.loggers import LightningLoggerBase
 from src.utils import utils
 
 log = utils.get_logger(__name__)
-
-
-def _locate(path: str) -> Union[type, Callable[..., Any]]:
-    """
-    Locate an object by name or dotted path, importing as necessary.
-    This is similar to the pydoc function `locate`, except that it checks for
-    the module from the given path from back to front.
-    """
-    if path == "":
-        raise ImportError("Empty path")
-    from importlib import import_module
-    from types import ModuleType
-
-    parts = [part for part in path.split(".") if part]
-    for n in reversed(range(1, len(parts) + 1)):
-        mod = ".".join(parts[:n])
-        try:
-            obj = import_module(mod)
-        except Exception as exc_import:
-            if n == 1:
-                raise ImportError(f"Error loading module '{path}'") from exc_import
-            continue
-        break
-    for m in range(n, len(parts)):
-        part = parts[m]
-        try:
-            obj = getattr(obj, part)
-        except AttributeError as exc_attr:
-            if isinstance(obj, ModuleType):
-                mod = ".".join(parts[: m + 1])
-                try:
-                    import_module(mod)
-                except ModuleNotFoundError:
-                    pass
-                except Exception as exc_import:
-                    raise ImportError(f"Error loading '{path}': '{repr(exc_import)}'") from exc_import
-            raise ImportError(f"Encountered AttributeError while loading '{path}': {exc_attr}") from exc_attr
-    if isinstance(obj, type):
-        obj_type: type = obj
-        return obj_type
-    elif callable(obj):
-        obj_callable: Callable[..., Any] = obj
-        return obj_callable
-    else:
-        # reject if not callable & not a type
-        raise ValueError(f"Invalid type ({type(obj)}) found for {path}")
 
 
 def test(config: DictConfig) -> Optional[float]:
@@ -84,7 +38,7 @@ def test(config: DictConfig) -> Optional[float]:
 
     # Init lightning model
     log.info(f"Instantiating model <{config.model._target_}>")
-    model_cls = _locate(config.model._target_)
+    model_cls = utils._locate(config.model._target_)
     checkpoint_path: Path = Path(config.work_dir) / config.load_checkpoint
     model: LightningModule = model_cls.load_from_checkpoint(checkpoint_path)
 

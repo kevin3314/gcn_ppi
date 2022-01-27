@@ -1,6 +1,6 @@
 import tempfile
 from collections import defaultdict
-from typing import Any, Callable, List, Optional, Union
+from typing import List, Optional
 
 import hydra
 import numpy as np
@@ -23,52 +23,6 @@ log = utils.get_logger(__name__)
 log.setLevel(logging.INFO)
 
 
-def _locate(path: str) -> Union[type, Callable[..., Any]]:
-    """
-    Locate an object by name or dotted path, importing as necessary.
-    This is similar to the pydoc function `locate`, except that it checks for
-    the module from the given path from back to front.
-    """
-    if path == "":
-        raise ImportError("Empty path")
-    from importlib import import_module
-    from types import ModuleType
-
-    parts = [part for part in path.split(".") if part]
-    for n in reversed(range(1, len(parts) + 1)):
-        mod = ".".join(parts[:n])
-        try:
-            obj = import_module(mod)
-        except Exception as exc_import:
-            if n == 1:
-                raise ImportError(f"Error loading module '{path}'") from exc_import
-            continue
-        break
-    for m in range(n, len(parts)):
-        part = parts[m]
-        try:
-            obj = getattr(obj, part)
-        except AttributeError as exc_attr:
-            if isinstance(obj, ModuleType):
-                mod = ".".join(parts[: m + 1])
-                try:
-                    import_module(mod)
-                except ModuleNotFoundError:
-                    pass
-                except Exception as exc_import:
-                    raise ImportError(f"Error loading '{path}': '{repr(exc_import)}'") from exc_import
-            raise ImportError(f"Encountered AttributeError while loading '{path}': {exc_attr}") from exc_attr
-    if isinstance(obj, type):
-        obj_type: type = obj
-        return obj_type
-    elif callable(obj):
-        obj_callable: Callable[..., Any] = obj
-        return obj_callable
-    else:
-        # reject if not callable & not a type
-        raise ValueError(f"Invalid type ({type(obj)}) found for {path}")
-
-
 def train(config: DictConfig) -> Optional[float]:
     """Contains training pipeline.
     Instantiates all PyTorch Lightning objects from config.
@@ -89,7 +43,7 @@ def train(config: DictConfig) -> Optional[float]:
     kf = KFold(n_splits=5)
 
     datamodule_params = dict(config.datamodule)
-    datamodule_cls = _locate(datamodule_params.pop("_target_"))
+    datamodule_cls = utils._locate(datamodule_params.pop("_target_"))
     datamodule_params.pop("csv_path")  # remove csv_path from params
 
     res_dict = defaultdict(list)

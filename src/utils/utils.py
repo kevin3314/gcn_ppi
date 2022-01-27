@@ -1,7 +1,6 @@
 import logging
-import os
 import warnings
-from typing import List, Sequence
+from typing import Any, Callable, List, Sequence, Union
 
 import pytorch_lightning as pl
 import rich.syntax
@@ -140,12 +139,8 @@ def log_hyperparameters(
 
     # save number of model parameters
     hparams["model/params_total"] = sum(p.numel() for p in model.parameters())
-    hparams["model/params_trainable"] = sum(
-        p.numel() for p in model.parameters() if p.requires_grad
-    )
-    hparams["model/params_not_trainable"] = sum(
-        p.numel() for p in model.parameters() if not p.requires_grad
-    )
+    hparams["model/params_trainable"] = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    hparams["model/params_not_trainable"] = sum(p.numel() for p in model.parameters() if not p.requires_grad)
 
     # send hparams to all loggers
     trainer.logger.log_hyperparams(hparams)
@@ -172,3 +167,49 @@ def finish(
             import wandb
 
             wandb.finish()
+
+
+def _locate(path: str) -> Union[type, Callable[..., Any]]:
+    """
+    Locate an object by name or dotted path, importing as necessary.
+    This is similar to the pydoc function `locate`, except that it checks for
+    the module from the given path from back to front.
+    """
+    if path == "":
+        raise ImportError("Empty path")
+    from importlib import import_module
+    from types import ModuleType
+
+    parts = [part for part in path.split(".") if part]
+    for n in reversed(range(1, len(parts) + 1)):
+        mod = ".".join(parts[:n])
+        try:
+            obj = import_module(mod)
+        except Exception as exc_import:
+            if n == 1:
+                raise ImportError(f"Error loading module '{path}'") from exc_import
+            continue
+        break
+    for m in range(n, len(parts)):
+        part = parts[m]
+        try:
+            obj = getattr(obj, part)
+        except AttributeError as exc_attr:
+            if isinstance(obj, ModuleType):
+                mod = ".".join(parts[: m + 1])
+                try:
+                    import_module(mod)
+                except ModuleNotFoundError:
+                    pass
+                except Exception as exc_import:
+                    raise ImportError(f"Error loading '{path}': '{repr(exc_import)}'") from exc_import
+            raise ImportError(f"Encountered AttributeError while loading '{path}': {exc_attr}") from exc_attr
+    if isinstance(obj, type):
+        obj_type: type = obj
+        return obj_type
+    elif callable(obj):
+        obj_callable: Callable[..., Any] = obj
+        return obj_callable
+    else:
+        # reject if not callable & not a type
+        raise ValueError(f"Invalid type ({type(obj)}) found for {path}")
