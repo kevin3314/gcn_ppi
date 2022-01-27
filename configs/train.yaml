@@ -5,7 +5,7 @@ defaults:
   - _self_
   - trainer: default.yaml
   - model: text_model.yaml
-  - datamodule: hprd50.yaml
+  - datamodule: text_dataset.yaml
   - callbacks: default.yaml
   - logger: tensorboard # set logger here or use command line (e.g. `python run.py logger=wandb`)
 
@@ -42,5 +42,8 @@ seed: 42
 
 # name of the run, accessed by loggers
 name: null
+
+metrics:
+  - test/f1
 
 load_checkpoint:

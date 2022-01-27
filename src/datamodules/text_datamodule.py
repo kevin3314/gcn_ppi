@@ -11,7 +11,9 @@ from src.datamodules.datasets.text_dataset import TextDataset
 class TextDatasetModule(LightningDataModule):
     def __init__(
         self,
-        data_dir: Union[str, Path],
+        train_csv_path: Union[str, Path],
+        valid_csv_path: Union[str, Path],
+        test_csv_path: Union[str, Path],
         pretrained_path: str,
         batch_size: int = 32,
         num_workers: int = 0,
@@ -29,7 +31,9 @@ class TextDatasetModule(LightningDataModule):
         """
         super().__init__()
 
-        self.data_dir = Path(data_dir)
+        self.train_csv_path = Path(train_csv_path)
+        self.valid_csv_path = Path(valid_csv_path)
+        self.test_csv_path = Path(test_csv_path)
         self.tokenizer = AutoTokenizer.from_pretrained(pretrained_path)
         self.batch_size = batch_size
         self.num_workers = num_workers
@@ -42,9 +46,9 @@ class TextDatasetModule(LightningDataModule):
 
     def setup(self, stage: Optional[str] = None):
         """Load data"""
-        self.train_ds = TextDataset(self.data_dir / "train.csv", self.tokenizer, max_seq_len=self.max_seq_len)
-        self.valid_ds = TextDataset(self.data_dir / "valid.csv", self.tokenizer, max_seq_len=self.max_seq_len)
-        self.test_ds = TextDataset(self.data_dir / "test.csv", self.tokenizer, max_seq_len=self.max_seq_len)
+        self.train_ds = TextDataset(self.train_csv_path, self.tokenizer, max_seq_len=self.max_seq_len)
+        self.valid_ds = TextDataset(self.valid_csv_path, self.tokenizer, max_seq_len=self.max_seq_len)
+        self.test_ds = TextDataset(self.test_csv_path, self.tokenizer, max_seq_len=self.max_seq_len)
 
     def train_dataloader(self):
         return DataLoader(
