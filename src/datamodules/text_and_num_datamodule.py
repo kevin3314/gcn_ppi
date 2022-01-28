@@ -10,7 +10,9 @@ from src.datamodules.text_datamodule import TextDatasetModule
 class TextAndNumModule(TextDatasetModule):
     def __init__(
         self,
-        data_dir: Union[str, Path],
+        train_csv_path: Union[str, Path],
+        valid_csv_path: Union[str, Path],
+        test_csv_path: Union[str, Path],
         feature_tsv_path: Union[str, Path],
         pretrained_path: str,
         batch_size: int = 32,
@@ -27,25 +29,35 @@ class TextAndNumModule(TextDatasetModule):
             num_workers (int, optional): The number of workers. Defaults to 0.
             pin_memory (bool, optional): Defaults to False.
         """
-        super().__init__(data_dir, pretrained_path, batch_size, num_workers, pin_memory, max_seq_len, **kwargs)
+        super().__init__(
+            train_csv_path,
+            valid_csv_path,
+            test_csv_path,
+            pretrained_path,
+            batch_size,
+            num_workers,
+            pin_memory,
+            max_seq_len,
+            **kwargs,
+        )
         self.feature_tsv_path = Path(feature_tsv_path)
 
     def setup(self, stage: Optional[str] = None):
         """Load data"""
         self.train_ds = TextAndNumDataset(
-            self.data_dir / "train.csv",
+            self.train_csv_path,
             self.feature_tsv_path,
             self.tokenizer,
             max_seq_len=self.max_seq_len,
         )
         self.valid_ds = TextAndNumDataset(
-            self.data_dir / "valid.csv",
+            self.valid_csv_path,
             self.feature_tsv_path,
             self.tokenizer,
             max_seq_len=self.max_seq_len,
         )
         self.test_ds = TextAndNumDataset(
-            self.data_dir / "test.csv",
+            self.test_csv_path,
             self.feature_tsv_path,
             self.tokenizer,
             max_seq_len=self.max_seq_len,

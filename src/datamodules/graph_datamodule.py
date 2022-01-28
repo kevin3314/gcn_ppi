@@ -10,7 +10,9 @@ from src.datamodules.datasets.graph_dataset import GraphDataset
 class GraphDatasetModule(LightningDataModule):
     def __init__(
         self,
-        data_dir: Union[str, Path],
+        train_csv_path: Union[str, Path],
+        valid_csv_path: Union[str, Path],
+        test_csv_path: Union[str, Path],
         pdb_processed_root: Union[str, Path],
         batch_size: int = 32,
         num_workers: int = 0,
@@ -25,7 +27,9 @@ class GraphDatasetModule(LightningDataModule):
             pin_memory (bool, optional): Defaults to False.
         """
         super().__init__()
-        self.data_dir = Path(data_dir)
+        self.train_csv_path = Path(train_csv_path)
+        self.valid_csv_path = Path(valid_csv_path)
+        self.test_csv_path = Path(test_csv_path)
         self.pdb_processed_root = Path(pdb_processed_root)
         self.batch_size = batch_size
         self.num_workers = num_workers
@@ -33,9 +37,9 @@ class GraphDatasetModule(LightningDataModule):
 
     def setup(self, stage: Optional[str] = None):
         """Load data"""
-        self.train_ds = GraphDataset(self.data_dir / "train.csv", self.pdb_processed_root)
-        self.valid_ds = GraphDataset(self.data_dir / "valid.csv", self.pdb_processed_root)
-        self.test_ds = GraphDataset(self.data_dir / "test.csv", self.pdb_processed_root)
+        self.train_ds = GraphDataset(self.train_csv_path, self.pdb_processed_root)
+        self.valid_ds = GraphDataset(self.valid_csv_path, self.pdb_processed_root)
+        self.test_ds = GraphDataset(self.test_csv_path, self.pdb_processed_root)
 
     def train_dataloader(self):
         return GDataLoader(

@@ -10,7 +10,9 @@ from src.datamodules.text_datamodule import TextDatasetModule
 class TextAndGraphModule(TextDatasetModule):
     def __init__(
         self,
-        data_dir: Union[str, Path],
+        train_csv_path: Union[str, Path],
+        valid_csv_path: Union[str, Path],
+        test_csv_path: Union[str, Path],
         pdb_processed_root: Union[str, Path],
         pretrained_path: str,
         batch_size: int = 32,
@@ -27,19 +29,29 @@ class TextAndGraphModule(TextDatasetModule):
             num_workers (int, optional): The number of workers. Defaults to 0.
             pin_memory (bool, optional): Defaults to False.
         """
-        super().__init__(data_dir, pretrained_path, batch_size, num_workers, pin_memory, max_seq_len, **kwargs)
+        super().__init__(
+            train_csv_path,
+            valid_csv_path,
+            test_csv_path,
+            pretrained_path,
+            batch_size,
+            num_workers,
+            pin_memory,
+            max_seq_len,
+            **kwargs,
+        )
         self.pdb_processed_root = Path(pdb_processed_root)
 
     def setup(self, stage: Optional[str] = None):
         """Load data"""
         self.train_ds = TextAndGraphDataset(
-            self.data_dir / "train.csv", self.pdb_processed_root, self.tokenizer, max_seq_len=self.max_seq_len
+            self.train_csv_path, self.pdb_processed_root, self.tokenizer, max_seq_len=self.max_seq_len
         )
         self.valid_ds = TextAndGraphDataset(
-            self.data_dir / "valid.csv", self.pdb_processed_root, self.tokenizer, max_seq_len=self.max_seq_len
+            self.valid_csv_path, self.pdb_processed_root, self.tokenizer, max_seq_len=self.max_seq_len
         )
         self.test_ds = TextAndGraphDataset(
-            self.data_dir / "test.csv", self.pdb_processed_root, self.tokenizer, max_seq_len=self.max_seq_len
+            self.test_csv_path, self.pdb_processed_root, self.tokenizer, max_seq_len=self.max_seq_len
         )
 
     def train_dataloader(self):
