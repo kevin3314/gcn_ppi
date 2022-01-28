@@ -140,6 +140,6 @@ def train(config: DictConfig) -> Optional[float]:
 
     # Print results
     log.info("-" * 60)
-    log.info(f"Average of {kf.n_splits} folds")
     for metric, res in res_dict.items():
-        log.info(f"{metric} = {np.mean(np.array(res))}")
+        log.info(f"All:     {metric} = {res}")
+        log.info(f"Average: {metric} = {np.mean(np.array(res))}")
