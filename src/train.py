@@ -40,7 +40,7 @@ def train(config: DictConfig) -> Optional[float]:
 
     # Load csv
     df = pd.read_csv(config.datamodule.csv_path)
-    kf = KFold(n_splits=5, shuffle=True, random_state=config.seed)
+    kf = KFold(n_splits=config["folds"], shuffle=True, random_state=config.seed)
 
     datamodule_params = dict(config.datamodule)
     datamodule_cls = utils._locate(datamodule_params.pop("_target_"))

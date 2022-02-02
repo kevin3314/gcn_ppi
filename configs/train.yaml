@@ -47,3 +47,4 @@ metrics:
   - test/f1
 
 load_checkpoint:
+folds: 5

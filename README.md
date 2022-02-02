@@ -58,25 +58,24 @@ $ pip install torch-geometric
 4. Fetch pdb ids and ensemble ids corresponding to gene names by `preprocess/fetch_pdb_ensemble_id.py`.
 5. Fetch pdb files corresponding to pdb ids by `preprocess/fetch_pdb_by_id.py`.
 6. Complement pdb id by `preprocess/complement_pdb_id.py`.
-7. Split csv by `preprocess/split_csv.py`
-8. Preprocess on pdb files (e.g. building adjacency matrix) by `preprocess.py`.
-    - Set configuration on `configs/preprocess.yaml`.
-9. (Optional) Normalize numerical feature by `preprocess/normalize_numerical.py`
 
 ```console
 $ python preprocess/list_gene_names.py data/mm_data/HPRD50_multimodal_dataset.csv  data/mm_data/hprd50_gene_name.txt
 $ python preprocess/fetch_pdb_ensemble_id.py data/mm_data/hprd50_gene_name.txt data/mm_data/genename2emsembl_pdb.json
 $ python preprocess/fetch_pdb_by_id.py data/mm_data/genename2emsembl_pdb.json data/pdb
 $ python preprocess/complement_pdb_id.py data/mm_data/HPRD50_multimodal_dataset.csv data/mm_data/HPRD50_multimodal_dataset_with_pdb.csv data/mm_data/genename2emsebl_pdb.json
-$ python preprocess/split_csv.py data/mm_data/HPRD50_multimodal_dataset.csv 0.8,0.1,0.1 data/hprd50
-$ python preprocess_pdb.py
-$ python preprocess/normalize_numerical.py data/emsemble2feature/gene_numerical.tsv data/emsemble2feature/normalized_gene_numerical.tsv  # Optional
 ```
+
+The PDB files are translated into graphs on the fly.
+The result will be cached in the directory specified by *CACHE_ROOT* environment variable because processing takes a little time.
+You may set it by .env file (see .env.example).
+
 
 ## How to run
 
 Train model with default configuration.
-If needed, you may modify configuration in `configs/hprd50_config.yaml` and its dependents.
+The method is evaluated based on 5-fold cross validation (you may change the number of folds).
+If needed, you may modify configuration in `configs/train.yaml` and its dependents.
 ```yaml
 # default
 python run.py
@@ -98,10 +97,6 @@ You can override any parameter from command line like this
 python run.py trainer.max_epochs=20 datamodule.batch_size=64
 ```
 
-Test with trained model.
-```yaml
-python test.py load_checkpoint=path/to/checkpoint
-```
 
 ## Hyper Parameters
 Hyper parameters are listed in model configuration file as well. For more detail, you may refer to it.
@@ -118,5 +113,3 @@ Hyper parameters are listed in model configuration file as well. For more detail
 | Node dimension of GNN | 128 |
 | The number of GNN layers | 2 |
 | Dimension of numerical feature | 180 |
-
-<br>
