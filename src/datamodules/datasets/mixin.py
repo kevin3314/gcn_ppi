@@ -1,16 +1,16 @@
 import logging
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 import pandas as pd
 import torch
-from scipy.sparse import coo_matrix, load_npz
+from scipy.sparse import coo_matrix
 from torch_geometric.data import Data
 from torch_geometric.utils import from_scipy_sparse_matrix
 from transformers.tokenization_utils_base import PreTrainedTokenizerBase
 
-NULL_EMBEDDING = torch.ones(1)
+NULL_EMBEDDING = np.ones(1)
 NULL_ADJ = coo_matrix((0, 0))
 
 logger = logging.getLogger(__name__)
@@ -105,48 +105,36 @@ class NumFeatureMixin:
 
 class GraphDataMixin:
     @staticmethod
-    def get_pdb_nodes(pdb_ids0: List[str], pdb_ids1: List[str], pdb_root: Path) -> Tuple[List[torch.Tensor], ...]:
-        res0 = [
-            torch.from_numpy(np.load(pdb_root / f"{pdb_id}_ids.npy"))
-            if (pdb_root / f"{pdb_id}_ids.npy").exists()
-            else NULL_EMBEDDING
-            for pdb_id in pdb_ids0
-        ]
-        res1 = [
-            torch.from_numpy(np.load(pdb_root / f"{pdb_id}_ids.npy"))
-            if (pdb_root / f"{pdb_id}_ids.npy").exists()
-            else NULL_EMBEDDING
-            for pdb_id in pdb_ids1
-        ]
+    def get_pdb_nodes(
+        pdb_ids0: List[str], pdb_ids1: List[str], pdbid2nodes: Dict[str, np.ndarray]
+    ) -> Tuple[List[torch.Tensor], ...]:
+        res0 = [torch.from_numpy(pdbid2nodes.get(pdb_id, NULL_EMBEDDING)) for pdb_id in pdb_ids0]
+        res1 = [torch.from_numpy(pdbid2nodes.get(pdb_id, NULL_EMBEDDING)) for pdb_id in pdb_ids1]
 
-        missing_num = sum([(x == NULL_EMBEDDING).all() for x in res0]) + sum(
-            [(x == NULL_EMBEDDING).all() for x in res1]
-        )
+        missing_num = sum([(x is NULL_EMBEDDING) for x in res0]) + sum([(x is NULL_EMBEDDING) for x in res1])
         return res0, res1, missing_num
 
     @staticmethod
-    def get_adj_matrix(pdb_ids0: List[str], pdb_ids1: List[str], pdb_root: Path) -> Tuple[List[coo_matrix], ...]:
-        res0 = [
-            load_npz(pdb_root / f"{pdb_id}_adj.npz") if (pdb_root / f"{pdb_id}_adj.npz").exists() else NULL_ADJ
-            for pdb_id in pdb_ids0
-        ]
-        res1 = [
-            load_npz(pdb_root / f"{pdb_id}_adj.npz") if (pdb_root / f"{pdb_id}_adj.npz").exists() else NULL_ADJ
-            for pdb_id in pdb_ids1
-        ]
+    def get_adj_matrix(
+        pdb_ids0: List[str], pdb_ids1: List[str], pdbid2adjs: Dict[str, coo_matrix]
+    ) -> Tuple[List[coo_matrix], ...]:
+        res0 = [pdbid2adjs.get(pdb_id, NULL_ADJ) for pdb_id in pdb_ids0]
+        res1 = [pdbid2adjs.get(pdb_id, NULL_ADJ) for pdb_id in pdb_ids1]
 
-        missing_num = sum([(x == NULL_ADJ) for x in res0]) + sum([(x == NULL_ADJ) for x in res1])
+        missing_num = sum([(x is NULL_ADJ) for x in res0]) + sum([(x is NULL_ADJ) for x in res1])
         return res0, res1, missing_num
 
-    def load_pdb_data(self, csv_path: Union[str, Path], pdb_processed_root: Union[str, Path]) -> Tuple[List[Data], ...]:
-        logger.info("Loading graph feature from {}".format(pdb_processed_root))
+    def load_pdb_data(
+        self, csv_path: Union[str, Path], pdbid2nodes: Dict[str, np.ndarray], pdbid2adjs: Dict[str, coo_matrix]
+    ) -> Tuple[List[Data], ...]:
+        logger.info("Loading graph")
         csv_path = Path(csv_path)
         df = pd.read_csv(csv_path)
         amino_acids_list0, amino_acids_list1, missing_nodes = GraphDataMixin.get_pdb_nodes(
-            df["PDB_ID0"].values, df["PDB_ID1"], pdb_processed_root
+            df["PDB_ID0"].values, df["PDB_ID1"], pdbid2nodes
         )
         amino_acids_adj_list0, amino_acids_adj_list1, missing_adjs = GraphDataMixin.get_adj_matrix(
-            df["PDB_ID0"].values, df["PDB_ID1"], pdb_processed_root
+            df["PDB_ID0"].values, df["PDB_ID1"], pdbid2adjs
         )
         amino_acids_edges0: List[torch.Tensor] = [from_scipy_sparse_matrix(adj)[0] for adj in amino_acids_adj_list0]
         amino_acids_edges1: List[torch.Tensor] = [from_scipy_sparse_matrix(adj)[0] for adj in amino_acids_adj_list1]
