@@ -45,6 +45,7 @@ name: null
 
 metrics:
   - test/f1
+  - test/auroc
 
 load_checkpoint:
 folds: 5

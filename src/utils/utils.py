@@ -1,11 +1,14 @@
 import logging
 import random
 import warnings
-from typing import Any, Callable, List, Sequence, Union
+from typing import Any, Callable, Dict, List, Sequence, Union
 
+import mlflow
+import numpy as np
 import pytorch_lightning as pl
 import rich.syntax
 import rich.tree
+from hydra.core.hydra_config import HydraConfig
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning.utilities import rank_zero_only
 
@@ -22,6 +25,10 @@ def get_logger(name=__name__, level=logging.INFO) -> logging.Logger:
         setattr(logger, level, rank_zero_only(getattr(logger, level)))
 
     return logger
+
+
+logger = get_logger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def extras(config: DictConfig) -> None:
@@ -223,3 +230,30 @@ def get_run_name(conf: OmegaConf) -> str:
     name = model_conf._target_.split(".")[-1]
     # Add random hash
     return name + "_" + str(random.getrandbits(32))
+
+
+@rank_zero_only
+def log_result(config: OmegaConf, res_dict: Dict[str, Any], best_paths: List[str]) -> None:
+    # Log/Print results
+    mlflow.set_tracking_uri(f"file://{HydraConfig.get().runtime.cwd}/mlruns")
+    mlflow.set_experiment(config.experiment_name)
+    run_name = get_run_name(config)
+    logger.info(f"Experiment name: {config.experiment_name}")
+    logger.info(f"run name: {run_name}")
+    logger.info("-" * 60)
+    with mlflow.start_run(run_name=run_name):
+        # Log hyperparameters
+        for name, d in [("model", config.model), ("dataset", config.datamodule), ("trainer", config.trainer)]:
+            for k, v in d.items():
+                mlflow.log_param(f"{name}_{k}", v)
+
+        for i, checkpoints in enumerate(best_paths):
+            mlflow.log_param(f"best_checkpoint_{i}fold", checkpoints)
+
+        # Log metrics
+        for metric, res in res_dict.items():
+            logger.info(f"All:     {metric} = {res}")
+            logger.info(f"Average: {metric} = {np.mean(np.array(res))}")
+            logger.info(f"Std:     {metric} = {np.std(np.array(res))}")
+            mlflow.log_metric(f"{metric}_mean", np.mean(np.array(res)))
+            mlflow.log_metric(f"{metric}_std", np.std(np.array(res)))

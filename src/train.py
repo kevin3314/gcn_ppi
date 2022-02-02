@@ -3,7 +3,6 @@ from collections import defaultdict
 from typing import List, Optional
 
 import hydra
-import mlflow
 import numpy as np
 import pandas as pd
 from omegaconf import DictConfig
@@ -144,22 +143,4 @@ def train(config: DictConfig) -> Optional[float]:
         fe.close()
 
     # Log/Print results
-    mlflow.set_experiment(config.experiment_name)
-    run_name = utils.get_run_name(config)
-    log.info("-" * 60)
-    with mlflow.start_run(run_name=run_name):
-        # Log hyperparameters
-        for name, d in [("model", config.model), ("dataset", config.datamodule), ("trainer", config.trainer)]:
-            for k, v in d.items():
-                mlflow.log_param(f"{name}_{k}", v)
-
-        for i, checkpoints in enumerate(best_paths):
-            mlflow.log_param(f"best_checkpoint_{i}fold", checkpoints)
-
-        # Log metrics
-        for metric, res in res_dict.items():
-            log.info(f"All:     {metric} = {res}")
-            log.info(f"Average: {metric} = {np.mean(np.array(res))}")
-            log.info(f"Std:     {metric} = {np.std(np.array(res))}")
-            mlflow.log_metric(f"{metric}_mean", np.mean(np.array(res)))
-            mlflow.log_metric(f"{metric}_std", np.std(np.array(res)))
+    utils.log_result(config, res_dict, best_paths)
