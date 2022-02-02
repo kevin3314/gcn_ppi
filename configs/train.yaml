@@ -44,6 +44,8 @@ seed: 42
 name: null
 
 metrics:
+  - test/prec
+  - test/rec
   - test/f1
   - test/auroc
 
