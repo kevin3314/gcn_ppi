@@ -1,4 +1,5 @@
 import logging
+import random
 import warnings
 from typing import Any, Callable, List, Sequence, Union
 
@@ -213,3 +214,12 @@ def _locate(path: str) -> Union[type, Callable[..., Any]]:
     else:
         # reject if not callable & not a type
         raise ValueError(f"Invalid type ({type(obj)}) found for {path}")
+
+
+def get_run_name(conf: OmegaConf) -> str:
+    """Returns run name based on the config."""
+
+    model_conf = conf.model
+    name = model_conf._target_.split(".")[-1]
+    # Add random hash
+    return name + "_" + str(random.getrandbits(32))

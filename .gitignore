@@ -149,3 +149,5 @@ wandb/
 .env
 .autoenv
 outputs/
+
+mlruns/

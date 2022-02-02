@@ -3,6 +3,7 @@ from collections import defaultdict
 from typing import List, Optional
 
 import hydra
+import mlflow
 import numpy as np
 import pandas as pd
 from omegaconf import DictConfig
@@ -47,6 +48,9 @@ def train(config: DictConfig) -> Optional[float]:
     datamodule_params.pop("csv_path")  # remove csv_path from params
 
     res_dict = defaultdict(list)
+    best_paths = []
+
+    log.info(f"Start {config.experiment_name}")
 
     for i, (train, test) in enumerate(kf.split(df)):
         log.info(f"Start {i}th fold out of {kf.n_splits} folds")
@@ -114,6 +118,7 @@ def train(config: DictConfig) -> Optional[float]:
             results = trainer.test(ckpt_path=trainer.checkpoint_callback.best_model_path)
             for metric in config.metrics:
                 res_dict[metric].append(results[0][metric])
+                best_paths.append(trainer.checkpoint_callback.best_model_path)
 
         # Make sure everything closed properly
         log.info("Finalizing!")
@@ -127,7 +132,7 @@ def train(config: DictConfig) -> Optional[float]:
         )
 
         # Print path to best checkpoint
-        log.info(f"Best checkpoint path:\n{trainer.checkpoint_callback.best_model_path}")
+        log.info(f"Best checkpoint path:    {trainer.checkpoint_callback.best_model_path}")
 
         # Return metric score for hyperparameter optimization
         optimized_metric = config.get("optimized_metric")
@@ -138,8 +143,23 @@ def train(config: DictConfig) -> Optional[float]:
         fv.close()
         fe.close()
 
-    # Print results
+    # Log/Print results
+    mlflow.set_experiment(config.experiment_name)
+    run_name = utils.get_run_name(config)
     log.info("-" * 60)
-    for metric, res in res_dict.items():
-        log.info(f"All:     {metric} = {res}")
-        log.info(f"Average: {metric} = {np.mean(np.array(res))}")
+    with mlflow.start_run(run_name=run_name):
+        # Log hyperparameters
+        for name, d in [("model", config.model), ("dataset", config.datamodule), ("trainer", config.trainer)]:
+            for k, v in d.items():
+                mlflow.log_param(f"{name}_{k}", v)
+
+        for i, checkpoints in enumerate(best_paths):
+            mlflow.log_param(f"best_checkpoint_{i}fold", checkpoints)
+
+        # Log metrics
+        for metric, res in res_dict.items():
+            log.info(f"All:     {metric} = {res}")
+            log.info(f"Average: {metric} = {np.mean(np.array(res))}")
+            log.info(f"Std:     {metric} = {np.std(np.array(res))}")
+            mlflow.log_metric(f"{metric}_mean", np.mean(np.array(res)))
+            mlflow.log_metric(f"{metric}_std", np.std(np.array(res)))
