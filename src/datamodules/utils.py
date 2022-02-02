@@ -1,3 +1,6 @@
+import hashlib
+import os
+import pickle
 from logging import INFO, getLogger
 from numbers import Number
 from pathlib import Path
@@ -38,8 +41,25 @@ def construct_graph(
     train_df = pd.read_csv(train_path)
     valid_df = pd.read_csv(valid_path)
     test_df = pd.read_csv(test_path)
-
     PDB_COLS = ["PDB_ID0", "PDB_ID1"]
+
+    # Look up cache
+    ids_for_lookup = ""
+    for df in [train_df, valid_df, test_df]:
+        ids_for_lookup += "_".join(sorted(map(lambda x: str(x), list(set(df["PDB_ID0"].values)))))
+    hash_id = hashlib.md5(ids_for_lookup.encode("utf-8")).hexdigest()
+    hashed_path = Path(f"{os.environ.get('CACHE_ROOT')}/{hash_id}.pkl")
+    if hashed_path.exists() and not os.environ.get("OVERWRITE_CACHE", False):
+        logger.info("Found cache of graph data: %s", hashed_path)
+        with open(f"{os.environ.get('CACHE_ROOT')}/{hash_id}.pkl", "rb") as f:
+            pdbid2nodes, pdbid2adjs, vocab = pickle.load(f)
+            return pdbid2nodes, pdbid2adjs, vocab
+
+    if os.environ.get("OVERWRITE_CACHE", False):
+        logger.info("Overwrite cache of graph data: %s", hashed_path)
+    else:
+        logger.info("No cache of graph data found: %s", hashed_path)
+    logger.info("Building graph data...")
     train_pdb_ids: Set = set()
     for col in PDB_COLS:
         train_pdb_ids |= set(train_df[col].values)
@@ -63,6 +83,10 @@ def construct_graph(
 
     pdbid2nodes = {pdb_id: unit_ids for pdb_id, unit_ids in zip(all_pdb_ids, units_ids)}
     pdbid2adjs = {pdb_id: adj for pdb_id, adj in zip(all_pdb_ids, adjacency_matrixes)}
+
+    hashed_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(hashed_path, "wb") as f:
+        pickle.dump((pdbid2nodes, pdbid2adjs, vocab), f)
     return pdbid2nodes, pdbid2adjs, vocab
 
 
@@ -77,7 +101,7 @@ def get_unit_vocab_for_pdbs(
         pdb_root (Optional[Union[Path, str]], optional): Directory which contains pdb ids.
                                                          Defaults to "/data1/NLP_PPI/ppi_data/pdb".
     """
-    units_list, _ = get_names_coordinates_for_pdbs(pdbs, pdb_root)
+    units_list, _ = get_names_coordinates_for_pdbs(pdbs, pdb_root, return_coordinates=False)
     units_vocab = {
         units: i for i, units in enumerate(set(unit for units in units_list for unit in units if unit is not None))
     }
@@ -129,6 +153,7 @@ def get_pdb_path(
 def get_names_coordinates_for_pdbs(
     pdbs: List[str],
     pdb_root: Optional[Union[Path, str]] = "data/pdb",
+    return_coordinates: bool = True,
 ) -> Tuple[List[List[str]], List[np.ndarray]]:
     """Get names and coordinates for pdbs.
     Basically following https://yoshidabenjiro.hatenablog.com/entry/2020/01/15/171333.
@@ -154,6 +179,8 @@ def get_names_coordinates_for_pdbs(
     parser = Bio.PDB.MMCIFParser(QUIET=True)
     residue_names: List[List[str]] = []
     residue_coordinates: List[np.ndarray] = []
+    names_append = residue_names.append
+    coord_append = residue_coordinates.append
     for pdb_id, pdb_path in tqdm(zip(pdbs, pdb_paths), desc="Loading pdb files...", total=len(list(pdbs))):
         structure = parser.get_structure(pdb_id, pdb_path)
         model = structure[0]
@@ -161,8 +188,9 @@ def get_names_coordinates_for_pdbs(
         residues: List[Bio.PDB.Residue.Residue] = [
             residue for chain in chains for residue in chain.get_residues() if residue.full_id[-1][0] == " "
         ]
-        residue_names.append([residue.resname for residue in residues])
-        residue_coordinates.append(np.array([get_residual_coord(residue) for residue in residues]))
+        names_append([residue.resname for residue in residues])
+        if return_coordinates:
+            coord_append(np.array([get_residual_coord(residue) for residue in residues]))
     return residue_names, residue_coordinates
 
 
