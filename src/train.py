@@ -117,7 +117,7 @@ def train(config: DictConfig) -> Optional[float]:
             results = trainer.test(ckpt_path=trainer.checkpoint_callback.best_model_path)
             for metric in config.metrics:
                 res_dict[metric].append(results[0][metric])
-                best_paths.append(trainer.checkpoint_callback.best_model_path)
+            best_paths.append(trainer.checkpoint_callback.best_model_path)
 
         # Make sure everything closed properly
         log.info("Finalizing!")
