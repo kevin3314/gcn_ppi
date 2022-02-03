@@ -24,8 +24,8 @@ We list the Precision/Recall/F1 scores of each models in the following table.
 
 | Model | HPRD50 | BioInfer |
 | :--- | ---: |---: |
-| Dutta et al. [1] Text | 90.44/58.67/71.17 | 54.42/87.45/67.09 |
-| Dutta et al. [1] Text & Graph| 94.79/75.21/83.87 | 69.04/88.49/77.54 |
+| Dutta et al. [1] (Text) | 90.44/58.67/71.17 | 54.42/87.45/67.09 |
+| Dutta et al. [1] (Text & Graph) | 94.79/75.21/83.87 | 69.04/88.49/77.54 |
 | Pingali et al. [2] &dagger; | 95.47/94.69/95.06 | 78.49/79.78/80.86 |
 | Text only | -/-/- | -/-/- |
 | Graph only | -/-/- | -/-/- |
