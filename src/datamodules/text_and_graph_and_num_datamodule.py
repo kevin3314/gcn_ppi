@@ -5,6 +5,7 @@ from torch_geometric.loader import DataLoader as GDataLoader
 
 from src.datamodules.datasets.text_and_graph_and_num_dataset import TextAndGraphAndNumDataset
 from src.datamodules.text_datamodule import TextDatasetModule
+from src.datamodules.utils import construct_graph
 
 
 class TextAndGraphAndNumModule(TextDatasetModule):
@@ -13,9 +14,9 @@ class TextAndGraphAndNumModule(TextDatasetModule):
         train_csv_path: Union[str, Path],
         valid_csv_path: Union[str, Path],
         test_csv_path: Union[str, Path],
-        pdb_processed_root: Union[str, Path],
         feature_tsv_path: Union[str, Path],
         pretrained_path: str,
+        pdb_path: Union[str, Path] = None,
         batch_size: int = 32,
         num_workers: int = 0,
         pin_memory: bool = False,
@@ -41,28 +42,34 @@ class TextAndGraphAndNumModule(TextDatasetModule):
             max_seq_len,
             **kwargs,
         )
-        self.pdb_processed_root = Path(pdb_processed_root)
+        self.pdb_path = Path(pdb_path)
         self.feature_tsv_path = Path(feature_tsv_path)
 
     def setup(self, stage: Optional[str] = None):
         """Load data"""
+        pdbid2nodes, pdbid2adjs, _ = construct_graph(
+            self.train_csv_path, self.valid_csv_path, self.test_csv_path, self.pdb_path, self.threshold
+        )
         self.train_ds = TextAndGraphAndNumDataset(
             self.train_csv_path,
-            self.pdb_processed_root,
+            pdbid2nodes,
+            pdbid2adjs,
             self.feature_tsv_path,
             self.tokenizer,
             max_seq_len=self.max_seq_len,
         )
         self.valid_ds = TextAndGraphAndNumDataset(
             self.valid_csv_path,
-            self.pdb_processed_root,
+            pdbid2nodes,
+            pdbid2adjs,
             self.feature_tsv_path,
             self.tokenizer,
             max_seq_len=self.max_seq_len,
         )
         self.test_ds = TextAndGraphAndNumDataset(
             self.test_csv_path,
-            self.pdb_processed_root,
+            pdbid2nodes,
+            pdbid2adjs,
             self.feature_tsv_path,
             self.tokenizer,
             max_seq_len=self.max_seq_len,
