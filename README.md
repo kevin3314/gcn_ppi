@@ -54,17 +54,19 @@ $ pip install torch-geometric
 ## Preprocess
 1. Download PPI data annotated with gene names from [here](https://github.com/duttaprat/MM_PPI_NLP) to data/mm_data.
 2. Convert xlsm file to csv file (suppose `HPRD50_multimodal_dataset.csv`).
-3. List up gene names in `HPRD50_multimodal_dataset.csv` by `preprocess/list_gene_names.py`.
+3. List up gene names in `HPRD50_multimodal_dataset.csv` by `preprocess/list_gene_names.py`. (You need specify dataset name)
 4. Fetch pdb ids and ensemble ids corresponding to gene names by `preprocess/fetch_pdb_ensemble_id.py`.
 5. Fetch pdb files corresponding to pdb ids by `preprocess/fetch_pdb_by_id.py`.
 6. Complement pdb id by `preprocess/complement_pdb_id.py`.
 
 ```console
 $ python preprocess/list_gene_names.py data/mm_data/HPRD50_multimodal_dataset.csv  data/mm_data/hprd50_gene_name.txt
-$ python preprocess/fetch_pdb_ensemble_id.py data/mm_data/hprd50_gene_name.txt data/mm_data/genename2emsembl_pdb.json
+$ python preprocess/fetch_pdb_ensemble_id.py data/mm_data/hprd50_gene_name.txt data/mm_data/genename2emsembl_pdb.json [hprd/bioinfer]
 $ python preprocess/fetch_pdb_by_id.py data/mm_data/genename2emsembl_pdb.json data/pdb
-$ python preprocess/complement_pdb_id.py data/mm_data/HPRD50_multimodal_dataset.csv data/mm_data/HPRD50_multimodal_dataset_with_pdb.csv data/mm_data/genename2emsebl_pdb.json
+$ python preprocess/complement_pdb_id.py data/mm_data/HPRD50_multimodal_dataset.csv data/[hprd/bioinfer]/all.csv data/mm_data/genename2emsebl_pdb.json
 ```
+
+NOTE: Resultant csv file should be located at **data/[hprd/bioinfer]/all.csv**
 
 The PDB files are translated into graphs on the fly.
 The result will be cached in the directory specified by *CACHE_ROOT* environment variable because processing takes a little time.
@@ -73,28 +75,35 @@ You may set it by .env file (see .env.example).
 
 ## How to run
 
-Train model with default configuration.
 The method is evaluated based on 5-fold cross validation (you may change the number of folds).
 If needed, you may modify configuration in `configs/train.yaml` and its dependents.
-```yaml
+```console
 # default
-python run.py
+$ python run.py
 
 # train on CPU
-python run.py trainer.gpus=0
+$ python run.py trainer.gpus=0
 
 # train on GPU
-python run.py trainer.gpus=1
+$ python run.py trainer.gpus=1
 ```
 
-Train model with chosen experiment configuration from [configs/experiment/](configs/experiment/)
-```yaml
-python run.py experiment=experiment_name
-```
+You may run all configure combination by make command.
+```console
+# Run all combination
+$ make all DATASET=hprd
 
+# Run text model
+$ make text DATASET=hprd
+```
 You can override any parameter from command line like this
-```yaml
-python run.py trainer.max_epochs=20 datamodule.batch_size=64
+```console
+$ python run.py trainer.max_epochs=20 datamodule.batch_size=64
+```
+
+All results are maintained by mlflow. You can launch mlflow server by `mlflow ui`.
+```console
+$ mlflow ui
 ```
 
 
