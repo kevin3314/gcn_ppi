@@ -1,6 +1,7 @@
 _target_: src.datamodules.graph_and_num_datamodule.GraphAndNumModule
 csv_path:
 pdb_path: ${data_dir}/pdb
+thereshold: 8
 feature_tsv_path: ${data_dir}/emsemble2feature/normalized_gene_feature_TCGA_v1.tsv
 batch_size: 16
 num_workers: 0

@@ -1,3 +1,4 @@
+from numbers import Number
 from pathlib import Path
 from typing import Optional, Union
 
@@ -16,6 +17,7 @@ class GraphAndNumModule(LightningDataModule):
         test_csv_path: Union[str, Path],
         feature_tsv_path: Union[str, Path],
         pdb_path: Union[str, Path] = None,
+        threshold: Number = 8,
         batch_size: int = 32,
         num_workers: int = 0,
         pin_memory: bool = False,
@@ -38,6 +40,7 @@ class GraphAndNumModule(LightningDataModule):
         self.pin_memory = pin_memory
         self.feature_tsv_path = Path(feature_tsv_path)
         self.pdb_path = Path(pdb_path)
+        self.threshold = threshold
 
     def setup(self, stage: Optional[str] = None):
         """Load data"""

@@ -1,6 +1,7 @@
 _target_: src.datamodules.text_and_graph_datamodule.TextAndGraphModule
 csv_path:
 pdb_path: ${data_dir}/pdb
+thereshold: 8
 batch_size: 16
 pretrained_path: dmis-lab/biobert-v1.1
 num_workers: 0

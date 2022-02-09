@@ -10,7 +10,9 @@ from src.datamodules.datasets.num_dataset import NumDataset
 class NumDatasetModule(LightningDataModule):
     def __init__(
         self,
-        data_dir: Union[str, Path],
+        train_csv_path: Union[str, Path],
+        valid_csv_path: Union[str, Path],
+        test_csv_path: Union[str, Path],
         feature_tsv_path: Union[str, Path],
         batch_size: int = 32,
         num_workers: int = 0,
@@ -27,7 +29,9 @@ class NumDatasetModule(LightningDataModule):
         """
         super().__init__()
 
-        self.data_dir = Path(data_dir)
+        self.train_csv_path = Path(train_csv_path)
+        self.valid_csv_path = Path(valid_csv_path)
+        self.test_csv_path = Path(test_csv_path)
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.pin_memory = pin_memory
@@ -39,9 +43,9 @@ class NumDatasetModule(LightningDataModule):
 
     def setup(self, stage: Optional[str] = None):
         """Load data"""
-        self.train_ds = NumDataset(self.data_dir / "train.csv", self.feature_tsv_path)
-        self.valid_ds = NumDataset(self.data_dir / "valid.csv", self.feature_tsv_path)
-        self.test_ds = NumDataset(self.data_dir / "test.csv", self.feature_tsv_path)
+        self.train_ds = NumDataset(self.train_csv_path, self.feature_tsv_path)
+        self.valid_ds = NumDataset(self.valid_csv_path, self.feature_tsv_path)
+        self.test_ds = NumDataset(self.test_csv_path, self.feature_tsv_path)
 
     def train_dataloader(self):
         return DataLoader(
