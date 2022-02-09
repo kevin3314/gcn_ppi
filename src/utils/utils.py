@@ -233,11 +233,10 @@ def get_run_name(conf: OmegaConf) -> str:
 
 
 @rank_zero_only
-def log_result(config: OmegaConf, res_dict: Dict[str, Any], best_paths: List[str]) -> None:
+def log_result(run_name: str, config: OmegaConf, res_dict: Dict[str, Any], best_paths: List[str]) -> None:
     # Log/Print results
     mlflow.set_tracking_uri(f"file://{HydraConfig.get().runtime.cwd}/mlruns")
     mlflow.set_experiment(config.experiment_name)
-    run_name = get_run_name(config)
     logger.info(f"Experiment name: {config.experiment_name}")
     logger.info(f"run name: {run_name}")
     logger.info("-" * 60)

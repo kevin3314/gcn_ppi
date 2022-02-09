@@ -34,6 +34,7 @@ def train(config: DictConfig) -> Optional[float]:
         Optional[float]: Metric score for hyperparameter optimization.
     """
 
+    run_name = utils.get_run_name(config)
     # Set seed for random number generators in pytorch, numpy and python.random
     if config.get("seed"):
         seed_everything(config.seed, workers=True)
@@ -143,4 +144,4 @@ def train(config: DictConfig) -> Optional[float]:
         fe.close()
 
     # Log/Print results
-    utils.log_result(config, res_dict, best_paths)
+    utils.log_result(run_name, config, res_dict, best_paths)
