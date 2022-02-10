@@ -27,7 +27,7 @@ def main(config: DictConfig):
         utils.print_config(config, resolve=True)
 
     # Train model
-    return train(config)
+    return train(config, do_cross_validation=config.do_cross_validation)
 
 
 if __name__ == "__main__":

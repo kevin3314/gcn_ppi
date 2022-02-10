@@ -227,17 +227,28 @@ def get_run_name(conf: OmegaConf) -> str:
     """Returns run name based on the config."""
 
     model_conf = conf.model
-    name = model_conf._target_.split(".")[-1]
+    result = model_conf._target_.split(".")[-1]
     # Add random hash
-    return name + "_" + str(random.getrandbits(32))
+    return result + str(random.getrandbits(32))
+
+
+def get_experiment_name(config: OmegaConf) -> str:
+    """Returns experiment name based on the config."""
+    result = config.experiment_name
+    if config.do_cross_validation:
+        result = result + "_cv"
+    else:
+        result = result + "_wo_cv"
+    return result
 
 
 @rank_zero_only
 def log_result(run_name: str, config: OmegaConf, res_dict: Dict[str, Any], best_paths: List[str]) -> None:
+    experiment_name = get_experiment_name(config)
     # Log/Print results
     mlflow.set_tracking_uri(f"file://{HydraConfig.get().runtime.cwd}/mlruns")
-    mlflow.set_experiment(config.experiment_name)
-    logger.info(f"Experiment name: {config.experiment_name}")
+    mlflow.set_experiment(experiment_name)
+    logger.info(f"Experiment name: {experiment_name}")
     logger.info(f"run name: {run_name}")
     logger.info("-" * 60)
     with mlflow.start_run(run_name=run_name):

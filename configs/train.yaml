@@ -50,5 +50,7 @@ metrics:
   - test/auroc
 
 load_checkpoint:
+do_cross_validation: True
+ratio: 0.8,0.1,0.1
 folds: 5
 experiment_name:
