@@ -127,12 +127,21 @@ def _train(datamodule: LightningDataModule, config, res_dict: Dict[str, List[Any
     log.info("Starting training!")
     trainer.fit(model=model, datamodule=datamodule)
 
+    # Pop validation metric
+    agg_func = {"max": max, "min": min}[config.callbacks.model_checkpoint.mode]
+    monitor_metric = agg_func(trainer.checkpoint_callback.best_k_models.values()).cpu().item()
+    res_dict[config.callbacks.model_checkpoint.monitor].append(monitor_metric)
+
     # Evaluate model on test set, using the best model achieved during training
     if config.get("test_after_training") and not config.trainer.get("fast_dev_run"):
         log.info("Starting testing!")
         results = trainer.test(ckpt_path=trainer.checkpoint_callback.best_model_path)
         for metric in config.metrics:
-            res_dict[metric].append(results[0][metric])
+            try:
+                res_dict[metric].append(results[0][metric])
+            except KeyError as e:
+                if metric.startswith("test"):
+                    raise e
         best_paths.append(trainer.checkpoint_callback.best_model_path)
 
     # Make sure everything closed properly

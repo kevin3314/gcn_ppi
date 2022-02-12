@@ -44,6 +44,7 @@ seed: 42
 name: null
 
 metrics:
+  - val/f1
   - test/prec
   - test/rec
   - test/f1
