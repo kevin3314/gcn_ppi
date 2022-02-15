@@ -22,6 +22,7 @@ Our's differs in that our model for protein structural modality process over res
 ## Results
 We list the Precision/Recall/F1 scores of each models in the following table.
 
+Followings are results of single run.
 | Model | HPRD50 | BioInfer |
 | :--- | ---: |---: |
 | Dutta et al. [1] (Text) | 90.44/58.67/71.17 | 54.42/87.45/67.09 |
@@ -39,6 +40,17 @@ We list the Precision/Recall/F1 scores of each models in the following table.
 
 > [1]: Pratik Dutta and Sriparna Saha, Amalgamation of protein sequence, structure and textual information for improving protein-protein interaction identification, In Proceedings of the 58th Annual Meet- ing of the Association for Computational Linguistics\
 > [2] Sriram Pingali, Shweta Yadav, Pratik Dutta and Sriparna Saha, Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction, Findings of the Association for Computational Linguistics: ACL-IJCNLP
+
+Followings are results of cross validation.
+| Model | HPRD50 | BioInfer |
+| :--- | ---: |---: |
+| Text only | 78.6/72.6/73.3 | 85.3/84.7/84.9 |
+| Graph only | 2.57/27.1/4.68 | 5.71/1.26/2.07 |
+| Numerical only | 6.67/43.2/10.4 | 16.8/17.4/17.0 |
+| Text + Graph | 87.0/74.4/78.2 | 87.1/83.3/85.1 |
+| Text + Numerical | 75.1/72.2/72.0 | 87.1/83.1/85.1 |
+| Graph + Numerical | 4.00/30.4/7.06 | 16.4/25.6/19.9 |
+| Text + Graph + Numerical | 83.8/71.0/75.2 | 87.1/84.7/85.8 |
 
 ## Requirements
 Dependency is maintained by poetry. Some dependencies (ones related to pytorch-geometric), however, can not be installed via poetry and need to be installed manually.
