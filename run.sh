@@ -2,10 +2,14 @@
 text=false
 graph=false
 numerical=fales
+cross_validation=false
 dataset=""
 
 while getopts d:tgn opt; do
     case "$opt" in
+        c)
+            cross_validation=true
+            ;;
         t)
             text=true
             ;;
@@ -47,7 +51,7 @@ echo "text -> $text"
 echo "graph-> $graph"
 echo "numerical-> $numerical"
 
-BASE_CMD="python run.py trainer=ddp trainer.gpus=2 experiment_name=$dataset model.train_size=$train_size datamodule.csv_path=$data"
+BASE_CMD="python run.py trainer=ddp trainer.gpus=2 experiment_name=$dataset model.train_size=$train_size datamodule.csv_path=$data do_cross_validation=$cross_validation"
 BASE_MODEL="_model"
 BASE_DATASET="_dataset"
 
