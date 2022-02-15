@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, Optional
 
 import torch
 import torch.nn.functional as F
@@ -22,7 +22,13 @@ class TextAndGraphAndNumModule(CommonMixin, LightningModule):
         num_feature_dim: int,
         pretrained_path: str = "dmis-lab/biobert-v1.1",
         with_lstm=False,
+        with_tensorfusion_network=False,
         with_intermediate_layer=False,
+        post_fusion_dim: Optional[int] = None,
+        post_fusion_dropout_prob: Optional[float] = None,
+        condense_text_dim: Optional[int] = None,
+        condense_graph_dim: Optional[int] = None,
+        condense_num_dim: Optional[int] = None,
         train_size: int = 358020,
         batch_size: int = 32,
         max_epochs: int = 50,
@@ -41,7 +47,13 @@ class TextAndGraphAndNumModule(CommonMixin, LightningModule):
             num_feature_dim,
             pretrained_path,
             with_lstm,
+            with_tensorfusion_network,
             with_intermediate_layer,
+            post_fusion_dim=post_fusion_dim,
+            post_fusion_dropout_prob=post_fusion_dropout_prob,
+            condense_text_dim=condense_text_dim,
+            condense_graph_dim=condense_graph_dim,
+            condense_num_dim=condense_num_dim,
         )
         self.criterion = torch.nn.BCEWithLogitsLoss()
 
