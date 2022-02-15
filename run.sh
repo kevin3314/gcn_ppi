@@ -114,12 +114,17 @@ if [ $numerical = true ]; then
             num_feature_path="$(pwd)/data/emsemble2feature/gene_feature_v${version}_log_pca${dim}.tsv"
             RUN_CMD="${CMD} datamodule.feature_tsv_path=$num_feature_path model.num_feature_dim=$dim"
             if [ $text = true ]; then
-                for intermediate in true false
-                do
-                    FINAL_CMD="${RUN_CMD} model.with_intermediate_layer=$intermediate"
-                    echo "run: $FINAL_CMD"
-                    eval $FINAL_CMD
-                done
+                CMD_WITH_TENSORFUSION="${RUN_CMD} model.with_tensorfusion_network=$tensorfusion"
+                echo "run: $CMD_WITH_TENSORFUSION"
+                eval $CMD_WITH_TENSORFUSION
+
+                CMD_WITH_INTERMEDIATE="${RUN_CMD} model.with_intermediate_layer=$intermediate"
+                echo "run: $CMD_WITH_INTERMEDIATE"
+                eval $CMD_WITH_INTERMEDIATE
+
+                CMD_PLAIN="${RUN_CMD}"
+                echo "run: $CMD_PLAIN"
+                eval $CMD_PLAIN
             else
                 echo "run: $RUN_CMD"
                 eval $RUN_CMD
