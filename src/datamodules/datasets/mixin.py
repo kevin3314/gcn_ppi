@@ -11,6 +11,7 @@ from torch_geometric.utils import from_scipy_sparse_matrix
 from transformers.tokenization_utils_base import PreTrainedTokenizerBase
 
 NULL_EMBEDDING = np.ones(1)
+NULL_EMBEDDING_FOR_CHECK = torch.from_numpy(NULL_EMBEDDING)
 NULL_ADJ = coo_matrix((0, 0))
 
 logger = logging.getLogger(__name__)
@@ -111,7 +112,9 @@ class GraphDataMixin:
         res0 = [torch.from_numpy(pdbid2nodes.get(pdb_id, NULL_EMBEDDING)) for pdb_id in pdb_ids0]
         res1 = [torch.from_numpy(pdbid2nodes.get(pdb_id, NULL_EMBEDDING)) for pdb_id in pdb_ids1]
 
-        missing_num = sum([(x is NULL_EMBEDDING) for x in res0]) + sum([(x is NULL_EMBEDDING) for x in res1])
+        missing_num = sum([(x is NULL_EMBEDDING_FOR_CHECK) for x in res0]) + sum(
+            [(x is NULL_EMBEDDING_FOR_CHECK) for x in res1]
+        )
         return res0, res1, missing_num
 
     @staticmethod
