@@ -22,19 +22,19 @@ Our's differs in that our model for protein structural modality process over res
 ## Results
 We list the Precision/Recall/F1 scores of each models in the following table.
 
-Followings are results of single run.
+Followings are results of **single** run.
 | Model | HPRD50 | BioInfer |
 | :--- | ---: |---: |
 | Dutta et al. [1] (Text) | 90.44/58.67/71.17 | 54.42/87.45/67.09 |
 | Dutta et al. [1] (Text & Graph) | 94.79/75.21/83.87 | 69.04/88.49/77.54 |
-| Pingali et al. [2] &dagger; | 95.47/94.69/95.06 | 78.49/79.78/80.86 |
-| Text only | -/-/- | -/-/- |
-| Graph only | -/-/- | -/-/- |
-| Numerical only | -/-/- | -/-/- |
-| Text + Graph | -/-/- | -/-/- |
-| Text + Numerical | -/-/- | -/-/- |
-| Graph + Numerical | -/-/- | -/-/- |
-| Text + Graph + Numerical | -/-/- | -/-/- |
+| Pingali et al. [2] &dagger; | **95.47**/**94.69**/**95.06** | 78.49/79.78/80.86 |
+| Text only | 93.3/70.0/80.0 | 81.2/86.4/83.7 |
+| Graph only | 0.00/0.00/0.00 | 0.00/0.00/0.00 |
+| Numerical only | 9.68/30.0/14.6 | 13.1/16.6/14.7 |
+| Text + Graph | 87.5/70.0/77.8 | **84.4**/85.1/84.8 |
+| Text + Numerical | 79.0/75.0/76.9 | 80.5/**88.1**/84.2 |
+| Graph + Numerical | 0.00/0.00/0.00 | 19.3/29.4/23.3 |
+| Text + Graph + Numerical | 82.4/70.0/75.7 | 83.8/**88.1**/**85.9** |
 
 &dagger;: The evaluation metrics in the author's implementation seem broken, though. Their text modality model is too simple yet has beaten previous models, including strong pretrained model-based, Bio-BERT-based one. Moreover, we found bugs in their implementation of metrics.
 
@@ -44,13 +44,13 @@ Followings are results of single run.
 Followings are results of cross validation.
 | Model | HPRD50 | BioInfer |
 | :--- | ---: |---: |
-| Text only | 78.6/72.6/73.3 | 85.3/84.7/84.9 |
+| Text only | 78.6/72.6/73.3 | 85.3/**84.7**/84.9 |
 | Graph only | 2.57/27.1/4.68 | 5.71/1.26/2.07 |
 | Numerical only | 6.67/43.2/10.4 | 16.8/17.4/17.0 |
-| Text + Graph | 87.0/74.4/78.2 | 87.1/83.3/85.1 |
-| Text + Numerical | 75.1/72.2/72.0 | 87.1/83.1/85.1 |
+| Text + Graph | **87.0**/**74.4**/**78.2** | **87.1**/83.3/85.1 |
+| Text + Numerical | 75.1/72.2/72.0 | **87.1**/83.1/85.1 |
 | Graph + Numerical | 4.00/30.4/7.06 | 16.4/25.6/19.9 |
-| Text + Graph + Numerical | 83.8/71.0/75.2 | 87.1/84.7/85.8 |
+| Text + Graph + Numerical | 83.8/71.0/75.2 | **87.1**/**84.7**/**85.8** |
 
 ## Requirements
 Dependency is maintained by poetry. Some dependencies (ones related to pytorch-geometric), however, can not be installed via poetry and need to be installed manually.
