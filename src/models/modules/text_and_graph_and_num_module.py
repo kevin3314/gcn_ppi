@@ -4,6 +4,8 @@ from typing import Optional
 from torch import Tensor
 import torch.nn
 import torch.nn.functional as F
+from torch.nn.parameter import Parameter
+from torch.nn.init import xavier_normal
 
 from .graph_modality_model import GraphModalityModel
 from .text_modality_model import TextModalityModel
@@ -76,6 +78,76 @@ class TensorFusionNetwork(torch.nn.Module):
 
         return output
 
+
+class LowRankTensorFusionNetwork(torch.nn.Module):
+    '''
+    Low-rank Multimodal Fusion
+    '''
+
+    def __init__(self, text_dim: int, graph_dim: int, num_dim: int, rank: int):
+        '''
+        Args:
+            text_dim (int): Text data dimension
+            graph_dim (int): Graph data dimension
+            num_dim (int): Numerical data dimension
+            rank (int): specifying the size of rank in LMF
+        Output:
+            (return value in forward) a scalar value between -3 and 3
+        '''
+        super(LowRankTensorFusionNetwork, self).__init__()
+
+        self.text_dim = text_dim
+        self.graph_dim = graph_dim
+        self.num_dim = num_dim
+        self.rank = rank
+
+        # self.post_fusion_layer_1 = nn.Linear((self.text_out + 1) * (self.video_hidden + 1) * (self.audio_hidden + 1), self.post_fusion_dim)
+        self.text_factor = Parameter(torch.Tensor(self.rank, self.text_dim + 1, 1))
+        self.graph_factor = Parameter(torch.Tensor(self.rank, self.graph_dim + 1, 1))
+        self.num_factor = Parameter(torch.Tensor(self.rank, self.num_dim + 1, 1))
+        self.fusion_weights = Parameter(torch.Tensor(1, self.rank))
+        self.fusion_bias = Parameter(torch.Tensor(1, 1))
+
+        # init teh factors
+        xavier_normal(self.text_factor)
+        xavier_normal(self.graph_factor)
+        xavier_normal(self.num_factor)
+        xavier_normal(self.fusion_weights)
+        self.fusion_bias.data.fill_(0)
+
+    def forward(self, text_x: Tensor, graph_x: Tensor, num_x: Tensor):
+        '''
+        Args:
+            text_x (Tensor): Text data with (batch_size, text_dim)
+            graph_x (Tensor): Graph data with (batch_size, graph_dim)
+            num_x (Tensor): Numerical data with (batch_size, num_dim)
+        '''
+        batch_size = text_x.data.shape[0]
+
+        # next we perform low-rank multimodal fusion
+        # here is a more efficient implementation than the one the paper describes
+        # basically swapping the order of summation and elementwise product
+        tmp = torch.ones(batch_size, 1).to(text_x.dtype).to(text_x.device)
+        tmp.requires_grad = False
+        _text_x = torch.cat([tmp, text_x], dim=1)
+        tmp = torch.ones(batch_size, 1).to(graph_x.dtype).to(graph_x.device)
+        tmp.requires_grad = False
+        _graph_x = torch.cat([tmp, graph_x], dim=1)
+        tmp = torch.ones(batch_size, 1).to(num_x.dtype).to(num_x.device)
+        tmp.requires_grad = False
+        _num_x = torch.cat([tmp, num_x], dim=1)
+
+        fusion_text = torch.matmul(_text_x, self.text_factor)
+        fusion_graph = torch.matmul(_graph_x, self.graph_factor)
+        fusion_num = torch.matmul(_num_x, self.num_factor)
+        fusion_zy = fusion_text * fusion_graph * fusion_num
+
+        # output = torch.sum(fusion_zy, dim=0).squeeze()
+        # use linear transformation instead of simple summation, more flexibility
+        output = torch.matmul(self.fusion_weights, fusion_zy.permute(1, 0, 2)).squeeze() + self.fusion_bias
+        output = output.view(-1, 1)
+        return output
+
 class TextAndGraphAndNumModel(torch.nn.Module):
     """Multimodal model of text and graph.
     Text module is BioBERT and graph module is graph neural network.
@@ -90,13 +162,19 @@ class TextAndGraphAndNumModel(torch.nn.Module):
         pretrained="dmis-lab/biobert-v1.1",
         with_lstm=False,
         with_tensorfusion_network=False,
+        with_lowrank_tensorfusion_network=False,
         with_intermediate_layer=False,
         post_fusion_dim: Optional[int] = None,
         post_fusion_dropout_prob: Optional[float] = None,
         condense_text_dim: Optional[int] = None,
         condense_graph_dim: Optional[int] = None,
         condense_num_dim: Optional[int] = None,
+        rank: Optional[int] = None
     ):
+        assert(
+            sum((with_intermediate_layer, with_tensorfusion_network, with_lowrank_tensorfusion_network)) <= 1,
+            f"Only one of with_intermediate_layer, with_tensorfusion_network, with_lowrank_tensorfusion_network can be true"
+        )
         super(TextAndGraphAndNumModel, self).__init__()
         self.text_model = TextModalityModel(pretrained, with_lstm)
         text_hidden_size = self.text_model.encoder.config.hidden_size
@@ -105,6 +183,7 @@ class TextAndGraphAndNumModel(torch.nn.Module):
         self.gnn = GraphModalityModel(amino_vocab_size, node_dim, num_gnn_layers)
         total_feature_dim = text_hidden_size + node_dim * 2 + num_feature_dim * 2
         self.with_tensorfusion_network = with_tensorfusion_network
+        self.with_lowrank_tensorfusion_network = with_lowrank_tensorfusion_network
         if with_tensorfusion_network:
             assert post_fusion_dim is not None
             assert post_fusion_dropout_prob is not None
@@ -118,6 +197,15 @@ class TextAndGraphAndNumModel(torch.nn.Module):
                 post_fusion_dim,
                 post_fusion_dropout_prob,
             )
+        elif with_lowrank_tensorfusion_network:
+            assert rank is not None
+            self.post_model = LowRankTensorFusionNetwork(
+                text_hidden_size,
+                node_dim * 2,
+                num_feature_dim * 2,
+                rank,
+            )
+
         elif with_intermediate_layer:
             self.post_model = torch.nn.Sequential(
                 torch.nn.Linear(total_feature_dim, total_feature_dim // 2),
@@ -141,7 +229,7 @@ class TextAndGraphAndNumModel(torch.nn.Module):
         text_emb = self.text_model(input_ids, token_type_ids, attention_mask)
         node0 = self.gnn(data0.x, data0.edge_index, data0.batch)  # (b, node_dim)
         node1 = self.gnn(data1.x, data1.edge_index, data1.batch)  # (b, node_dim)
-        if self.with_tensorfusion_network:
+        if self.with_tensorfusion_network or self.with_lowrank_tensorfusion_network:
             text_hid = self.dropout(text_emb)
             graph_hid = self.dropout(torch.cat([node0, node1], dim=-1))
             num_hid = torch.cat([numerical_features0, numerical_features1], dim=-1)

@@ -7,11 +7,13 @@ pretrained_path: dmis-lab/biobert-v1.1
 with_lstm: false
 with_intermediate_layer: false
 with_tensorfusion_network: false
+with_lowrank_tensorfusion_network: false
 post_fusion_dim: 512
 post_fusion_dropout_prob: 0.1
 condense_text_dim: 128
 condense_graph_dim: 32
 condense_num_dim: 32
+rank: 4
 train_size:
 batch_size: 32
 max_epochs: 20
