@@ -5,7 +5,7 @@ numerical=fales
 cross_validation=false
 dataset=""
 
-while getopts d:tgn opt; do
+while getopts d:tgnc opt; do
     case "$opt" in
         c)
             cross_validation=true
@@ -114,11 +114,11 @@ if [ $numerical = true ]; then
             num_feature_path="$(pwd)/data/emsemble2feature/gene_feature_v${version}_log_pca${dim}.tsv"
             RUN_CMD="${CMD} datamodule.feature_tsv_path=$num_feature_path model.num_feature_dim=$dim"
             if [ $text = true ]; then
-                CMD_WITH_TENSORFUSION="${RUN_CMD} model.with_tensorfusion_network=$tensorfusion"
+                CMD_WITH_TENSORFUSION="${RUN_CMD} model.with_tensorfusion_network=true"
                 echo "run: $CMD_WITH_TENSORFUSION"
                 eval $CMD_WITH_TENSORFUSION
 
-                CMD_WITH_INTERMEDIATE="${RUN_CMD} model.with_intermediate_layer=$intermediate"
+                CMD_WITH_INTERMEDIATE="${RUN_CMD} model.with_intermediate_layer=true"
                 echo "run: $CMD_WITH_INTERMEDIATE"
                 eval $CMD_WITH_INTERMEDIATE
 

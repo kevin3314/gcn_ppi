@@ -56,7 +56,7 @@ def train(config: DictConfig, do_cross_validation: bool) -> Optional[float]:
     assert (do_cross_validation and config.folds is not None) or config.ratio is not None
 
     if do_cross_validation:
-        for i, (train, test) in enumerate(kf.split(df)):
+        for i, (train, test) in enumerate(kf.split(df), start=1):
             log.info(f"Start {i}th fold out of {kf.n_splits} folds")
             train_df = df.iloc[train]
             test_df = df.iloc[test]
