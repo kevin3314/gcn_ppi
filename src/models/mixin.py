@@ -24,22 +24,20 @@ class CommonMixin:
 
         # `outputs` is a list of dicts returned from `training_step()`
         self.train_prec(preds, targets.long())
-        prec = self.train_prec.compute()
         self.train_rec(preds, targets.long())
-        rec = self.train_rec.compute()
         self.train_f1(preds, targets.long())
-        f1 = self.train_f1.compute()
         try:
             self.train_auroc(preds, targets.long())
-            auroc = self.train_auroc.compute()
+            auroc = self.val_auroc.compute()
         # If there is no positive instance
         except ValueError:
             auroc = 0
         # log train metrics
-        self.log("train/prec", prec, prog_bar=True)
-        self.log("train/rec", rec, prog_bar=True)
-        self.log("train/f1", f1, prog_bar=True)
+        self.log("train/prec", self.train_prec, prog_bar=True)
+        self.log("train/rec", self.train_rec, prog_bar=True)
+        self.log("train/f1", self.train_f1, prog_bar=True)
         self.log("train/auroc", auroc, prog_bar=True)
+        self.train_auroc.reset()
 
     def validation_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.step(batch)
@@ -52,11 +50,8 @@ class CommonMixin:
         targets = torch.cat([x["targets"] for x in outputs], dim=0)
 
         self.val_prec(preds, targets.long())
-        prec = self.val_prec.compute()
         self.val_rec(preds, targets.long())
-        rec = self.val_rec.compute()
         self.val_f1(preds, targets.long())
-        f1 = self.val_f1.compute()
         try:
             self.val_auroc(preds, targets.long())
             auroc = self.val_auroc.compute()
@@ -64,10 +59,11 @@ class CommonMixin:
         except ValueError:
             auroc = 0
         # log val metrics
-        self.log("val/prec", prec, prog_bar=True)
-        self.log("val/rec", rec, prog_bar=True)
-        self.log("val/f1", f1, prog_bar=True)
+        self.log("val/prec", self.val_prec, prog_bar=True)
+        self.log("val/rec", self.val_rec, prog_bar=True)
+        self.log("val/f1", self.val_f1, prog_bar=True)
         self.log("val/auroc", auroc, prog_bar=True)
+        self.val_auroc.reset()
 
     def test_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.step(batch)
@@ -76,15 +72,13 @@ class CommonMixin:
         return {"loss": loss, "preds": preds, "targets": targets}
 
     def test_epoch_end(self, outputs: List[Any]):
+        logger.info("test_epoch_end")
         preds = torch.cat([x["preds"] for x in outputs], dim=0)
         targets = torch.cat([x["targets"] for x in outputs], dim=0)
 
         self.test_prec(preds, targets.long())
-        prec = self.test_prec.compute()
         self.test_rec(preds, targets.long())
-        rec = self.test_rec.compute()
         self.test_f1(preds, targets.long())
-        f1 = self.test_f1.compute()
         try:
             self.test_auroc(preds, targets.long())
             auroc = self.test_auroc.compute()
@@ -92,10 +86,11 @@ class CommonMixin:
         except ValueError:
             auroc = 0
         # log test metrics
-        self.log("test/prec", prec)
-        self.log("test/rec", rec)
-        self.log("test/f1", f1)
+        self.log("test/prec", self.test_prec)
+        self.log("test/rec", self.test_rec)
+        self.log("test/f1", self.test_f1)
         self.log("test/auroc", auroc, prog_bar=True)
+        self.test_auroc.reset()
 
     def configure_optimizers(self):
         trainable_named_params = filter(lambda x: x[1].requires_grad, self.model.named_parameters())
