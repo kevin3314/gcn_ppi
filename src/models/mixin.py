@@ -29,9 +29,9 @@ class CommonMixin:
         self.train_f1(preds, targets.long())
         try:
             self.train_auroc(preds, targets.long())
-            auroc = self.val_auroc.compute()
+            auroc = self.train_auroc.compute()
         # If there is no positive instance
-        except ValueError:
+        except (ValueError, IndexError):
             auroc = 0
         # log train metrics
         self.log("train/acc", self.train_acc, prog_bar=True)
@@ -59,7 +59,7 @@ class CommonMixin:
             self.val_auroc(preds, targets.long())
             auroc = self.val_auroc.compute()
         # If there is no positive instance
-        except ValueError:
+        except (ValueError, IndexError):
             auroc = 0
         # log val metrics
         self.log("val/acc", self.val_acc, prog_bar=True)
@@ -88,7 +88,7 @@ class CommonMixin:
             self.test_auroc(preds, targets.long())
             auroc = self.test_auroc.compute()
         # If there is no positive instance
-        except ValueError:
+        except (ValueError, IndexError):
             auroc = 0
         # log test metrics
         self.log("test/acc", self.test_acc)
