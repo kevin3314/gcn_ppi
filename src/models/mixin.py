@@ -11,7 +11,7 @@ logger.setLevel(logging.INFO)
 class CommonMixin:
     def training_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.step(batch)
-        self.log("train/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
+        self.log("train/loss", loss, on_step=False, on_epoch=True, prog_bar=True)
 
         # we can return here dict with any tensors
         # and then read it in some callback or in training_epoch_end() below
@@ -34,16 +34,16 @@ class CommonMixin:
         except (ValueError, IndexError):
             auroc = 0
         # log train metrics
-        self.log("train/acc", self.train_acc, prog_bar=True)
-        self.log("train/prec", self.train_prec, prog_bar=True)
-        self.log("train/rec", self.train_rec, prog_bar=True)
+        self.log("train/acc", self.train_acc, prog_bar=False)
+        self.log("train/prec", self.train_prec, prog_bar=False)
+        self.log("train/rec", self.train_rec, prog_bar=False)
         self.log("train/f1", self.train_f1, prog_bar=True)
         self.log("train/auroc", auroc, prog_bar=True)
         self.train_auroc.reset()
 
     def validation_step(self, batch: Any, batch_idx: int):
         loss, preds, targets = self.step(batch)
-        self.log("val/loss", loss, on_step=False, on_epoch=True, prog_bar=False)
+        self.log("val/loss", loss, on_step=False, on_epoch=True, prog_bar=True)
 
         return {"loss": loss, "preds": preds, "targets": targets}
 
@@ -62,9 +62,9 @@ class CommonMixin:
         except (ValueError, IndexError):
             auroc = 0
         # log val metrics
-        self.log("val/acc", self.val_acc, prog_bar=True)
-        self.log("val/prec", self.val_prec, prog_bar=True)
-        self.log("val/rec", self.val_rec, prog_bar=True)
+        self.log("val/acc", self.val_acc, prog_bar=False)
+        self.log("val/prec", self.val_prec, prog_bar=False)
+        self.log("val/rec", self.val_rec, prog_bar=False)
         self.log("val/f1", self.val_f1, prog_bar=True)
         self.log("val/auroc", auroc, prog_bar=True)
         self.val_auroc.reset()
