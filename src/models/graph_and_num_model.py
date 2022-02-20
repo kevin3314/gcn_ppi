@@ -4,7 +4,7 @@ from typing import Any
 import torch
 import torch.nn.functional as F
 from pytorch_lightning import LightningModule
-from torchmetrics import AUROC, F1, Precision, Recall
+from torchmetrics import AUROC, F1, Accuracy, Precision, Recall
 
 from src.models.mixin import CommonMixin
 from src.models.modules.graph_and_num_module import GraphAndNumModel
@@ -39,14 +39,17 @@ class GraphAndNumModule(CommonMixin, LightningModule):
 
         # use separate metric instance for train, val and test step
         # to ensure a proper reduction over the epoch
+        self.train_acc = Accuracy()
         self.train_prec = Precision()
         self.train_rec = Recall()
         self.train_f1 = F1()
         self.train_auroc = AUROC()
+        self.val_acc = Accuracy()
         self.val_prec = Precision()
         self.val_rec = Recall()
         self.val_f1 = F1()
         self.val_auroc = AUROC()
+        self.test_acc = Accuracy()
         self.test_prec = Precision()
         self.test_rec = Recall()
         self.test_f1 = F1()

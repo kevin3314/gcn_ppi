@@ -23,6 +23,7 @@ class CommonMixin:
         targets = torch.cat([x["targets"] for x in outputs], dim=0)
 
         # `outputs` is a list of dicts returned from `training_step()`
+        self.train_acc(preds, targets.long())
         self.train_prec(preds, targets.long())
         self.train_rec(preds, targets.long())
         self.train_f1(preds, targets.long())
@@ -33,6 +34,7 @@ class CommonMixin:
         except ValueError:
             auroc = 0
         # log train metrics
+        self.log("train/acc", self.train_acc, prog_bar=True)
         self.log("train/prec", self.train_prec, prog_bar=True)
         self.log("train/rec", self.train_rec, prog_bar=True)
         self.log("train/f1", self.train_f1, prog_bar=True)
@@ -49,6 +51,7 @@ class CommonMixin:
         preds = torch.cat([x["preds"] for x in outputs], dim=0)
         targets = torch.cat([x["targets"] for x in outputs], dim=0)
 
+        self.val_acc(preds, targets.long())
         self.val_prec(preds, targets.long())
         self.val_rec(preds, targets.long())
         self.val_f1(preds, targets.long())
@@ -59,6 +62,7 @@ class CommonMixin:
         except ValueError:
             auroc = 0
         # log val metrics
+        self.log("val/acc", self.val_acc, prog_bar=True)
         self.log("val/prec", self.val_prec, prog_bar=True)
         self.log("val/rec", self.val_rec, prog_bar=True)
         self.log("val/f1", self.val_f1, prog_bar=True)
@@ -76,6 +80,7 @@ class CommonMixin:
         preds = torch.cat([x["preds"] for x in outputs], dim=0)
         targets = torch.cat([x["targets"] for x in outputs], dim=0)
 
+        self.test_acc(preds, targets.long())
         self.test_prec(preds, targets.long())
         self.test_rec(preds, targets.long())
         self.test_f1(preds, targets.long())
@@ -86,6 +91,7 @@ class CommonMixin:
         except ValueError:
             auroc = 0
         # log test metrics
+        self.log("test/acc", self.test_acc)
         self.log("test/prec", self.test_prec)
         self.log("test/rec", self.test_rec)
         self.log("test/f1", self.test_f1)
