@@ -45,6 +45,7 @@ name: null
 
 metrics:
   - val/f1
+  - test/acc
   - test/prec
   - test/rec
   - test/f1
