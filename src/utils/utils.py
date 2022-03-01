@@ -267,3 +267,27 @@ def log_result(run_name: str, config: OmegaConf, res_dict: Dict[str, Any], best_
             logger.info(f"Std:     {metric} = {np.std(np.array(res))}")
             mlflow.log_metric(f"{metric}_mean", np.mean(np.array(res)))
             mlflow.log_metric(f"{metric}_std", np.std(np.array(res)))
+
+
+def get_cv_test_experiment_name(config: OmegaConf) -> str:
+    """Returns experiment name based on the config."""
+    result = config.experiment_name
+    return result + "_cv_test"
+
+
+@rank_zero_only
+def log_cv_result(run_name: str, config: OmegaConf, res_dict: Dict[str, Any]):
+    experiment_name = get_cv_test_experiment_name(config)
+    # Log/Print results
+    mlflow.set_tracking_uri(f"file://{HydraConfig.get().runtime.cwd}/mlruns")
+    mlflow.set_experiment(experiment_name)
+    logger.info(f"Experiment name: {experiment_name}")
+    logger.info(f"run name: {run_name}")
+    logger.info("-" * 60)
+    # Log metrics
+    for metric, res in res_dict.items():
+        logger.info(f"All:     {metric} = {res}")
+        logger.info(f"Average: {metric} = {np.mean(np.array(res))}")
+        logger.info(f"Std:     {metric} = {np.std(np.array(res))}")
+        mlflow.log_metric(f"{metric}_mean", np.mean(np.array(res)))
+        mlflow.log_metric(f"{metric}_std", np.std(np.array(res)))
