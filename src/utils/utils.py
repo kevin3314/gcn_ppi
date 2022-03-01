@@ -285,9 +285,10 @@ def log_cv_result(run_name: str, config: OmegaConf, res_dict: Dict[str, Any]):
     logger.info(f"run name: {run_name}")
     logger.info("-" * 60)
     # Log metrics
-    for metric, res in res_dict.items():
-        logger.info(f"All:     {metric} = {res}")
-        logger.info(f"Average: {metric} = {np.mean(np.array(res))}")
-        logger.info(f"Std:     {metric} = {np.std(np.array(res))}")
-        mlflow.log_metric(f"{metric}_mean", np.mean(np.array(res)))
-        mlflow.log_metric(f"{metric}_std", np.std(np.array(res)))
+    with mlflow.start_run(run_name=run_name):
+        for metric, res in res_dict.items():
+            logger.info(f"All:     {metric} = {res}")
+            logger.info(f"Average: {metric} = {np.mean(np.array(res))}")
+            logger.info(f"Std:     {metric} = {np.std(np.array(res))}")
+            mlflow.log_metric(f"{metric}_mean", np.mean(np.array(res)))
+            mlflow.log_metric(f"{metric}_std", np.std(np.array(res)))

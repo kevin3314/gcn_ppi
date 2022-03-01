@@ -38,7 +38,7 @@ def test(config: DictConfig, datamodule: Optional[LightningDataModule] = None) -
         seed_everything(config.seed, workers=True)
 
     # Init lightning datamodule
-    if datamodule is not None:
+    if datamodule is None:
         log.info(f"Instantiating datamodule <{config.datamodule._target_}>")
         datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
 
@@ -136,10 +136,10 @@ def test_cv(config: OmegaConf, df: pd.DataFrame):
         log.info(f"Instantiating datamodule <{config.datamodule._target_}>")
         with PrepareTmpFile(train_df, valid_df, test_df) as (ft, fv, fe):
             datamodule: LightningDataModule = datamodule_cls(ft.name, fv.name, fe.name, **datamodule_params)
-        result: List[Dict[str, float]] = test(config, datamodule)
+            result: List[Dict[str, float]] = test(config, datamodule)
         print(result)
         assert len(result) == 1
         result = result[0]
-        for k, v in result:
+        for k, v in result.items():
             result_dict[k].append(v)
     utils.log_cv_result(run_name, config, result_dict)

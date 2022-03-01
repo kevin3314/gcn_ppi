@@ -135,13 +135,9 @@ def _train(datamodule: LightningDataModule, config, res_dict: Dict[str, List[Any
     # Evaluate model on test set, using the best model achieved during training
     if config.get("test_after_training") and not config.trainer.get("fast_dev_run"):
         log.info("Starting testing!")
-        results = trainer.test(ckpt_path=trainer.checkpoint_callback.best_model_path)
-        for metric in config.metrics:
-            try:
-                res_dict[metric].append(results[0][metric])
-            except KeyError as e:
-                if metric.startswith("test"):
-                    raise e
+        result = trainer.test(ckpt_path=trainer.checkpoint_callback.best_model_path)[0]
+        for k, v in result.items():
+            res_dict[k].append(v)
         best_paths.append(trainer.checkpoint_callback.best_model_path)
 
     # Make sure everything closed properly
