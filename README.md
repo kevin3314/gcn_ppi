@@ -41,7 +41,7 @@ Followings are results of **single** run.
 > [1]: Pratik Dutta and Sriparna Saha, Amalgamation of protein sequence, structure and textual information for improving protein-protein interaction identification, In Proceedings of the 58th Annual Meet- ing of the Association for Computational Linguistics\
 > [2] Sriram Pingali, Shweta Yadav, Pratik Dutta and Sriparna Saha, Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction, Findings of the Association for Computational Linguistics: ACL-IJCNLP
 
-Followings are results of **cross** validation.
+Followings are results of **cross** validation.\
 Results on HPRD50
 
 | Model | val/f1 | test/acc | test/prec | test/rec | test/f1 | test/auroc |
