@@ -64,7 +64,7 @@ Results on Bioinfer
 | Text + Graph | 84.41 (±2.08) | 94.22 (±1.20) | 85.58 (±3.46) | 81.58 (±6.32) | 83.37 (±3.58) | 96.24 (±1.66) |
 | Text + Num | **86.54** (±2.92) | 94.72 (±1.13) | 85.49 (±3.51) | **84.73** (±4.09) | 85.06 (±3.27) | 96.57 (±1.31) |
 | Graph + Num | 21.81 (±1.20) | 63.75 (±0.92) | 16.43 (±1.16) | 25.61 (±4.68) | 19.94 (±2.13) | 49.84 (±1.16) |
-| Text + Graph + Num (Concat) | 86.48 (±3.49) | **94.82** (±1.04) | **86.93** (±2.92) | **83.63** (±2.99) | **85.23** (±2.74) | 96.22 (±1.52) |
+| Text + Graph + Num (Concat) | 86.48 (±3.49) | **94.82** (±1.04) | **86.93** (±2.92) | 83.63 (±2.99) | **85.23** (±2.74) | 96.22 (±1.52) |
 
 ## Requirements
 Dependency is maintained by poetry. Some dependencies (ones related to pytorch-geometric), however, can not be installed via poetry and need to be installed manually.
