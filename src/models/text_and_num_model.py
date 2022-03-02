@@ -27,6 +27,7 @@ class TextAndNumModule(CommonMixin, LightningModule):
         warmup_epoch: int = 5,
         eps: float = 1e-8,
         weight_decay: float = 0.01,
+        **kwargs
     ):
         super().__init__()
         self.save_hyperparameters()
