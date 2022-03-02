@@ -42,15 +42,29 @@ Followings are results of **single** run.
 > [2] Sriram Pingali, Shweta Yadav, Pratik Dutta and Sriparna Saha, Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction, Findings of the Association for Computational Linguistics: ACL-IJCNLP
 
 Followings are results of **cross** validation.
-| Model | HPRD50 | BioInfer |
-| :--- | ---: |---: |
-| Text only | 78.6/72.6/73.3 | 85.3/**84.7**/84.9 |
-| Graph only | 2.57/27.1/4.68 | 5.71/1.26/2.07 |
-| Numerical only | 6.67/43.2/10.4 | 16.8/17.4/17.0 |
-| Text + Graph | **87.0**/**74.4**/**78.2** | **87.1**/83.3/85.1 |
-| Text + Numerical | 75.1/72.2/72.0 | **87.1**/83.1/85.1 |
-| Graph + Numerical | 4.00/30.4/7.06 | 16.4/25.6/19.9 |
-| Text + Graph + Numerical | 83.8/71.0/75.2 | **87.1**/**84.7**/**85.8** |
+Results on HPRD50
+
+| Model | val/f1 | test/acc | test/prec | test/rec | test/f1 | test/auroc |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Text | **78.14** (±4.80) | 97.60 (±1.37) | 80.92 (±18.47) | 70.85 (±16.59) | 73.48 (±12.15) | 94.45 (±8.05) |
+| Graph | 10.60 (±5.43) | 67.05 (±20.25) | 2.57 (±2.28) | 27.13 (±22.83) | 4.68 (±4.14) | 51.37 (±7.86) |
+| Num | 18.07 (±8.53) | 69.69 (±19.87) | 7.67 (±2.70) | 37.82 (±18.00) | 11.45 (±1.98) | 55.81 (±9.57) |
+| Text + Graph | 74.68 (±4.99) | 97.36 (±0.75) | 75.39 (±10.89) | 67.78 (±19.24) | 68.99 (±9.81) | 92.31 (±7.11) |
+| Text + Num | 78.47 (±7.98) | 97.60 (±0.99) | 80.30 (±15.33) | 69.33 (±16.20) | 72.18 (±11.11) | **96.24** (±5.15) |
+| Graph + Num | 18.32 (±6.81) | 68.68 (±9.15) | 4.00 (±2.66) | 30.43 (±21.32) | 7.06 (±4.72) | 48.13 (±6.93) |
+| Text + Graph + Num (Concat) | 78.07 (±7.36) | **98.29** (±0.94) | **89.17** (±1.36) | **72.85** (±16.96) | **79.25** (±10.78) | 95.37 (±5.73) |
+
+Results on Bioinfer
+
+| Model | val/f1 | test/acc | test/prec | test/rec | test/f1 | test/auroc |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Text | 85.85 (±2.00) | 94.66 (±1.08) | 84.73 (±3.75) | 85.69 (±3.32) | 85.14 (±2.71) | **97.31** (±0.85) |
+| Graph | 1.48 (±2.25) | 81.70 (±1.23) | 5.71 (±11.43) | 1.26 (±2.53) | 2.07 (±4.14) | 51.06 (±1.07) |
+| Num | 17.24 (±4.52) | 70.27 (±2.37) | 16.79 (±2.66) | 17.43 (±4.85) | 16.99 (±3.85) | 50.94 (±3.63) |
+| Text + Graph | 84.41 (±2.08) | 94.22 (±1.20) | 85.58 (±3.46) | 81.58 (±6.32) | 83.37 (±3.58) | 96.24 (±1.66) |
+| Text + Num | **86.54** (±2.92) | 94.72 (±1.13) | 85.49 (±3.51) | **84.73** (±4.09) | 85.06 (±3.27) | 96.57 (±1.31) |
+| Graph + Num | 21.81 (±1.20) | 63.75 (±0.92) | 16.43 (±1.16) | 25.61 (±4.68) | 19.94 (±2.13) | 49.84 (±1.16) |
+| Text + Graph + Num (Concat) | 86.48 (±3.49) | **94.82** (±1.04) | **86.93** (±2.92) | **83.63** (±2.99) | **85.23** (±2.74) | 96.22 (±1.52) |
 
 ## Requirements
 Dependency is maintained by poetry. Some dependencies (ones related to pytorch-geometric), however, can not be installed via poetry and need to be installed manually.
