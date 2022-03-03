@@ -28,13 +28,36 @@ Followings are results of **single** run.
 | Dutta et al. [1] (Text) | 90.44/58.67/71.17 | 54.42/87.45/67.09 |
 | Dutta et al. [1] (Text & Graph) | 94.79/75.21/83.87 | 69.04/88.49/77.54 |
 | Pingali et al. [2] &dagger; | **95.47**/**94.69**/**95.06** | 78.49/79.78/80.86 |
-| Text only | 93.3/70.0/80.0 | 81.2/86.4/83.7 |
-| Graph only | 0.00/0.00/0.00 | 0.00/0.00/0.00 |
-| Numerical only | 9.68/30.0/14.6 | 13.1/16.6/14.7 |
-| Text + Graph | 87.5/70.0/77.8 | **84.4**/85.1/84.8 |
-| Text + Numerical | 79.0/75.0/76.9 | 80.5/**88.1**/84.2 |
-| Graph + Numerical | 0.00/0.00/0.00 | 19.3/29.4/23.3 |
-| Text + Graph + Numerical | 82.4/70.0/75.7 | 83.8/**88.1**/**85.9** |
+
+Results on HPRD50
+
+| Model | val/f1 | test/acc | test/prec | test/rec | test/f1 | test/auroc |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Dutta et al. [1] (Text) | - | - | 90.44 | 58.67 | 71.17 | - |
+| Dutta et al. [1] (Text & Graph) | - | - | 94.79 | 75.21 | 83.87 | - |
+| Pingali et al. [2] &dagger; | - | - | **95.47** | **94.69** | **95.06** | - |
+| Text | 81.82 | **97.31** | 93.33 | 70.00 | 80.00 | 97.56 |
+| Graph | 0.00 | 85.00 | 0.00 | 0.00 | 0.00 | 47.71 |
+| Num | 10.81 | 83.85 | 7.69 | 10.00 | 8.70 | 48.45 |
+| Text + Graph | 85.71 | 96.92 | 87.50 | 70.00 | 77.78 | 98.31 |
+| Text + Num | 85.71 | 94.62 | 71.43 | 50.00 | 58.82 | 95.75 |
+| Graph + Num | 18.18 | 82.31 | 3.57 | 5.00 | 4.17 | 47.96 |
+| Text + Graph + Num | **90.91** | 96.54 | 82.35 | 70.00 | 75.68 | 98.00 |
+
+Results on Bioinfer
+
+| Model | val/f1 | test/acc | test/prec | test/rec | test/f1 | test/auroc |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Dutta et al. [1] (Text) | - | - | 54.42 | 87.45 | 67.09 | - |
+| Dutta et al. [1] (Text & Graph) | - | - | 69.04 | **88.49** | 77.54 | - |
+| Pingali et al. [2] &dagger; | - | - | 78.49 | 79.78 | 80.86 | - |
+| Text | 83.99 | 93.79 | 79.30 | 86.38 | 82.69 | 95.93 |
+| Graph | 0.00 | 82.82 | 0.00 | 0.00 | 0.00 | 45.78 |
+| Num | 17.85 | 66.81 | 13.13 | 16.60 | 14.66 | 48.61 |
+| Text + Graph | **86.74** | **95.18** | **84.77** | 87.66 | **86.19** | 97.55 |
+| Text + Num | 86.71 | 94.30 | 80.54 | 88.09 | 84.15 | 96.60 |
+| Graph + Num | 23.92 | 66.74 | 19.27 | 29.36 | 23.27 | 48.58 |
+| Text + Graph + Num | 85.59 | 94.74 | 82.73 | 87.66 | 85.12 | **97.63** |
 
 &dagger;: The evaluation metrics in the author's implementation seem broken, though. Their text modality model is too simple yet has beaten previous models, including strong pretrained model-based, Bio-BERT-based one. Moreover, we found bugs in their implementation of metrics.
 
