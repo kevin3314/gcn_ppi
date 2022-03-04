@@ -22,13 +22,7 @@ Our's differs in that our model for protein structural modality process over res
 ## Results
 We list the Precision/Recall/F1 scores of each models in the following table.
 
-Followings are results of **single** run.
-| Model | HPRD50 | BioInfer |
-| :--- | ---: |---: |
-| Dutta et al. [1] (Text) | 90.44/58.67/71.17 | 54.42/87.45/67.09 |
-| Dutta et al. [1] (Text & Graph) | 94.79/75.21/83.87 | 69.04/88.49/77.54 |
-| Pingali et al. [2] &dagger; | **95.47**/**94.69**/**95.06** | 78.49/79.78/80.86 |
-
+Followings are results of **single** run.\
 Results on HPRD50
 
 | Model | val/f1 | test/acc | test/prec | test/rec | test/f1 | test/auroc |
