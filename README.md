@@ -20,7 +20,7 @@ Our's differs in that our model for protein structural modality process over res
 
 
 ## Results
-We list the Precision/Recall/F1 scores of each models in the following table.
+We list the Accuracy/Precision/Recall/F1/AUROC scores of each models in the following table.
 
 Followings are results of **single** run.\
 Results on HPRD50
@@ -33,10 +33,12 @@ Results on HPRD50
 | Text | 81.82 | **97.31** | 93.33 | 70.00 | 80.00 | 97.56 |
 | Graph | 0.00 | 85.00 | 0.00 | 0.00 | 0.00 | 47.71 |
 | Num | 10.81 | 83.85 | 7.69 | 10.00 | 8.70 | 48.45 |
-| Text + Graph | 85.71 | 96.92 | 87.50 | 70.00 | 77.78 | 98.31 |
-| Text + Num | 85.71 | 94.62 | 71.43 | 50.00 | 58.82 | 95.75 |
-| Graph + Num | 18.18 | 82.31 | 3.57 | 5.00 | 4.17 | 47.96 |
-| Text + Graph + Num | **90.91** | 96.54 | 82.35 | 70.00 | 75.68 | 98.00 |
+| Text & Graph | 85.71 | 96.92 | 87.50 | 70.00 | 77.78 | 98.31 |
+| Text & Num | 85.71 | 94.62 | 71.43 | 50.00 | 58.82 | 95.75 |
+| Graph & Num | 18.18 | 82.31 | 3.57 | 5.00 | 4.17 | 47.96 |
+| Text & Graph & Num (Concat) | **90.91**  | **96.54**  | 82.35  | 70.00  | 75.68  | 98.00  |
+| Text & Graph & Num (TensorFusion) | 78.26  | 93.46  | 56.52  | 65.00  | 60.47  | nan  |
+| Text & Graph & Num (LowrankTensorFusion) | 69.57  | 93.85  | 60.00  | 60.00  | 60.00  | nan  |
 
 Results on Bioinfer
 
@@ -48,10 +50,12 @@ Results on Bioinfer
 | Text | 83.99 | 93.79 | 79.30 | 86.38 | 82.69 | 95.93 |
 | Graph | 0.00 | 82.82 | 0.00 | 0.00 | 0.00 | 45.78 |
 | Num | 17.85 | 66.81 | 13.13 | 16.60 | 14.66 | 48.61 |
-| Text + Graph | **86.74** | **95.18** | **84.77** | 87.66 | **86.19** | 97.55 |
-| Text + Num | 86.71 | 94.30 | 80.54 | 88.09 | 84.15 | 96.60 |
-| Graph + Num | 23.92 | 66.74 | 19.27 | 29.36 | 23.27 | 48.58 |
-| Text + Graph + Num | 85.59 | 94.74 | 82.73 | 87.66 | 85.12 | **97.63** |
+| Text & Graph | **86.74** | **95.18** | **84.77** | 87.66 | **86.19** | 97.55 |
+| Text & Num | 86.71 | 94.30 | 80.54 | 88.09 | 84.15 | 96.60 |
+| Graph & Num | 23.92 | 66.74 | 19.27 | 29.36 | 23.27 | 48.58 |
+| Text & Graph & Num (Concat) | 85.59 | 94.74 | 82.73 | 87.66 | 85.12 | **97.63** |
+| Text & Graph & Num (TensorFusion) | WIP | WIP | WIP | WIP | WIP | WIP |
+| Text & Graph & Num (LowrankTensorFusion) | WIP | WIP | WIP | WIP | WIP | WIP |
 
 &dagger;: The evaluation metrics in the author's implementation seem broken, though. Their text modality model is too simple yet has beaten previous models, including strong pretrained model-based, Bio-BERT-based one. Moreover, we found bugs in their implementation of metrics.
 
@@ -59,6 +63,7 @@ Results on Bioinfer
 > [2] Sriram Pingali, Shweta Yadav, Pratik Dutta and Sriparna Saha, Multimodal Graph-based Transformer Framework for Biomedical Relation Extraction, Findings of the Association for Computational Linguistics: ACL-IJCNLP
 
 Followings are results of **cross** validation.\
+NOTE: AUROC metrics of the model with tensorfusion networks could not be calculated due to a technical reason.\
 Results on HPRD50
 
 | Model | val/f1 | test/acc | test/prec | test/rec | test/f1 | test/auroc |
@@ -66,10 +71,12 @@ Results on HPRD50
 | Text | 78.14 (±4.80) | 97.60 (±1.37) | 80.92 (±18.47) | 70.85 (±16.59) | 73.48 (±12.15) | 94.45 (±8.05) |
 | Graph | 10.60 (±5.43) | 67.05 (±20.25) | 2.57 (±2.28) | 27.13 (±22.83) | 4.68 (±4.14) | 51.37 (±7.86) |
 | Num | 18.07 (±8.53) | 69.69 (±19.87) | 7.67 (±2.70) | 37.82 (±18.00) | 11.45 (±1.98) | 55.81 (±9.57) |
-| Text + Graph | 74.68 (±4.99) | 97.36 (±0.75) | 75.39 (±10.89) | 67.78 (±19.24) | 68.99 (±9.81) | 92.31 (±7.11) |
-| Text + Num | **78.47** (±7.98) | 97.60 (±0.99) | 80.30 (±15.33) | 69.33 (±16.20) | 72.18 (±11.11) | **96.24** (±5.15) |
-| Graph + Num | 18.32 (±6.81) | 68.68 (±9.15) | 4.00 (±2.66) | 30.43 (±21.32) | 7.06 (±4.72) | 48.13 (±6.93) |
-| Text + Graph + Num (Concat) | 78.07 (±7.36) | **98.29** (±0.94) | **89.17** (±1.36) | **72.85** (±16.96) | **79.25** (±10.78) | 95.37 (±5.73) |
+| Text & Graph | 74.68 (±4.99) | 97.36 (±0.75) | 75.39 (±10.89) | 67.78 (±19.24) | 68.99 (±9.81) | 92.31 (±7.11) |
+| Text & Num | **78.47** (±7.98) | 97.60 (±0.99) | 80.30 (±15.33) | 69.33 (±16.20) | 72.18 (±11.11) | **96.24** (±5.15) |
+| Graph & Num | 18.32 (±6.81) | 68.68 (±9.15) | 4.00 (±2.66) | 30.43 (±21.32) | 7.06 (±4.72) | 48.13 (±6.93) |
+| Text & Graph & Num (Concat) | 78.07 (±7.36) | **98.29** (±0.94) | **89.17** (±1.36) | **72.85** (±16.96) | **79.25** (±10.78) | 95.37 (±5.73) |
+| Text & Graph & Num (TensorFusion) | 79.45 (±5.86) | 97.29 (±0.78) | 77.69 (±20.12) | 71.50 (±17.29) | 70.19 (±6.82) | - |
+| Text & Graph & Num (LowrankTensorFusion) | 69.60 (±4.33) | 95.19 (±0.94) | 48.88 (±11.45) | 64.15 (±11.59) | 54.66 (±8.89) | - |
 
 Results on Bioinfer
 
@@ -78,10 +85,12 @@ Results on Bioinfer
 | Text | 85.85 (±2.00) | 94.66 (±1.08) | 84.73 (±3.75) | 85.69 (±3.32) | 85.14 (±2.71) | **97.31** (±0.85) |
 | Graph | 1.48 (±2.25) | 81.70 (±1.23) | 5.71 (±11.43) | 1.26 (±2.53) | 2.07 (±4.14) | 51.06 (±1.07) |
 | Num | 17.24 (±4.52) | 70.27 (±2.37) | 16.79 (±2.66) | 17.43 (±4.85) | 16.99 (±3.85) | 50.94 (±3.63) |
-| Text + Graph | 84.41 (±2.08) | 94.22 (±1.20) | 85.58 (±3.46) | 81.58 (±6.32) | 83.37 (±3.58) | 96.24 (±1.66) |
-| Text + Num | **86.54** (±2.92) | 94.72 (±1.13) | 85.49 (±3.51) | **84.73** (±4.09) | 85.06 (±3.27) | 96.57 (±1.31) |
-| Graph + Num | 21.81 (±1.20) | 63.75 (±0.92) | 16.43 (±1.16) | 25.61 (±4.68) | 19.94 (±2.13) | 49.84 (±1.16) |
-| Text + Graph + Num (Concat) | 86.48 (±3.49) | **94.82** (±1.04) | **86.93** (±2.92) | 83.63 (±2.99) | **85.23** (±2.74) | 96.22 (±1.52) |
+| Text & Graph | 84.41 (±2.08) | 94.22 (±1.20) | 85.58 (±3.46) | 81.58 (±6.32) | 83.37 (±3.58) | 96.24 (±1.66) |
+| Text & Num | **86.54** (±2.92) | 94.72 (±1.13) | 85.49 (±3.51) | **84.73** (±4.09) | 85.06 (±3.27) | 96.57 (±1.31) |
+| Graph & Num | 21.81 (±1.20) | 63.75 (±0.92) | 16.43 (±1.16) | 25.61 (±4.68) | 19.94 (±2.13) | 49.84 (±1.16) |
+| Text & Graph & Num (Concat) | 86.48 (±3.49) | **94.82** (±1.04) | **86.93** (±2.92) | 83.63 (±2.99) | **85.23** (±2.74) | 96.22 (±1.52) |
+| Text & Graph & Num (TensorFusion) | 84.54 (±4.87) | 94.44 (±1.56) | 84.54 (±3.86) | 84.28 (±5.72) | 84.35 (±4.46) | - |
+| Text & Graph & Num (LowrankTensorFusion) | 85.89 (±0.96) | 94.43 (±1.00) | 85.00 (±3.89) | 83.58 (±3.59) | 84.21 (±2.90) | - |
 
 ## Requirements
 Dependency is maintained by poetry. Some dependencies (ones related to pytorch-geometric), however, can not be installed via poetry and need to be installed manually.
