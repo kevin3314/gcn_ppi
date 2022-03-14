@@ -36,7 +36,7 @@ Results on HPRD50
 | Text & Graph | 85.71 | 96.92 | 87.50 | 70.00 | 77.78 | 98.31 |
 | Text & Num | 85.71 | 94.62 | 71.43 | 50.00 | 58.82 | 95.75 |
 | Graph & Num | 18.18 | 82.31 | 3.57 | 5.00 | 4.17 | 47.96 |
-| Text & Graph & Num (Concat) | **90.91**  | **96.54**  | 82.35  | 70.00  | 75.68  | 98.00  |
+| Text & Graph & Num (Concat) | **90.91**  | 96.54  | 82.35  | 70.00  | 75.68  | 98.00  |
 | Text & Graph & Num (TensorFusion) | 78.26  | 93.46  | 56.52  | 65.00  | 60.47  | nan  |
 | Text & Graph & Num (LowrankTensorFusion) | 69.57  | 93.85  | 60.00  | 60.00  | 60.00  | nan  |
 
