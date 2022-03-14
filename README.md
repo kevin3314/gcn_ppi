@@ -45,17 +45,17 @@ Results on Bioinfer
 | Model | val/f1 | test/acc | test/prec | test/rec | test/f1 | test/auroc |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
 | Dutta et al. [1] (Text) | - | - | 54.42 | 87.45 | 67.09 | - |
-| Dutta et al. [1] (Text & Graph) | - | - | 69.04 | **88.49** | 77.54 | - |
+| Dutta et al. [1] (Text & Graph) | - | - | 69.04 | 88.49 | 77.54 | - |
 | Pingali et al. [2] &dagger; | - | - | 78.49 | 79.78 | 80.86 | - |
 | Text | 83.99 | 93.79 | 79.30 | 86.38 | 82.69 | 95.93 |
 | Graph | 0.00 | 82.82 | 0.00 | 0.00 | 0.00 | 45.78 |
 | Num | 17.85 | 66.81 | 13.13 | 16.60 | 14.66 | 48.61 |
-| Text & Graph | **86.74** | **95.18** | **84.77** | 87.66 | **86.19** | 97.55 |
+| Text & Graph | 86.74 | 95.18 | 84.77 | 87.66 | 86.19 | 97.55 |
 | Text & Num | 86.71 | 94.30 | 80.54 | 88.09 | 84.15 | 96.60 |
 | Graph & Num | 23.92 | 66.74 | 19.27 | 29.36 | 23.27 | 48.58 |
 | Text & Graph & Num (Concat) | 85.59 | 94.74 | 82.73 | 87.66 | 85.12 | **97.63** |
-| Text & Graph & Num (TensorFusion) | WIP | WIP | WIP | WIP | WIP | WIP |
-| Text & Graph & Num (LowrankTensorFusion) | WIP | WIP | WIP | WIP | WIP | WIP |
+| Text & Graph & Num (TensorFusion) | **90.38**  | **96.13**  | **88.56**  | **88.94**  | **88.75**  | nan  |
+| Text & Graph & Num (LowrankTensorFusion) | 86.46  | 95.03  | 81.51  | 91.91  | 86.40  | nan  |
 
 &dagger;: The evaluation metrics in the author's implementation seem broken, though. Their text modality model is too simple yet has beaten previous models, including strong pretrained model-based, Bio-BERT-based one. Moreover, we found bugs in their implementation of metrics.
 
